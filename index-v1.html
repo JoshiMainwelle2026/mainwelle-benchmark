@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Benchmark Radio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: Wochen-Benchmark für Marketing und Geschäftsführung, Zeitungsgrafik-Standard
+   IDEA die Senderskala: jedes Profil als Senderlogo auf einer Karte aus Reichweitenwachstum und Interaktion
+   PICTURE großer Quadrant mit Profilbildern und Netzwerk-Abzeichen, Median-Fadenkreuz
+   COLOUR Mainwelle-Marine #0c1859 als Kopfband, Markenblau #218dce führt, Hellblau #89c9eb stützt, weißer Grund
+   TYPE Epilogue 800 für Titel und große Zahlen, Epilogue 400/500 für Text
+   LAYOUT Laptop: Kopfband mit Befund und Kennzahlen, darunter volle Breite Quadrant; Telefon: Titel, Quadrant, Filter, Tabelle */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#080d2b);--ink:light-dark(#161619,#eef2fb);--muted:light-dark(#5a6078,#a8b0cc);--line:light-dark(#e3e7f1,#1f2752);--panel:light-dark(#f4f7fc,#0f1638);--navy:#0c1859;--blue:#218dce;--sky:#89c9eb;--ig:#e1306c;--fb:#1877f2;--up:light-dark(#1a7f4b,#5fd39a);--down:light-dark(#b42318,#ff8a80)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Epilogue,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.head{background:var(--navy);color:#fff}
+.head h1{font-weight:800;font-size:clamp(32px,4.4vw,48px);line-height:1.05;letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance;max-width:20ch}
+.head .find{font-size:clamp(17px,1.8vw,21px);margin:0;max-width:60ch;color:#dfe9fb}
+.head .find b{color:#fff}
+.head .meta{margin:14px 0 0;font-size:14px;color:var(--sky)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px;margin-top:28px}
+.tile{border-top:2px solid var(--sky);padding-top:10px}
+.tile .v{font-weight:800;font-size:clamp(26px,3vw,34px);line-height:1.1;white-space:nowrap}
+.tile .l{font-size:14px;color:#c6d6f3}
+.ctrl{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;margin-bottom:18px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel);flex-wrap:wrap}
+.seg button{font:500 15px Epilogue,sans-serif;color:var(--ink);background:none;border:0;border-radius:999px;padding:9px 16px;min-height:40px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--blue);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.lab{font-size:14px;color:var(--muted);margin-right:8px}
+h2{font-weight:800;font-size:clamp(22px,2.4vw,28px);line-height:1.15;letter-spacing:-.01em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 16px;max-width:75ch}
+.fig{position:relative;min-height:clamp(380px,52vw,560px);border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig text{font-family:Epilogue,sans-serif;font-size:13px;fill:var(--muted);paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+.fig .ql{font-weight:700;fill:var(--blue);opacity:.75}
+.tip{position:absolute;z-index:3;pointer-events:none;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(12,24,89,.18);padding:10px 12px;font-size:14px;line-height:1.4;width:max-content;max-width:260px}
+.tip b{display:block;font-size:15px}
+.note{font-size:14px;color:var(--muted);margin:10px 0 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font:500 13px Epilogue,sans-serif;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+th.n,td.n{text-align:right}
+th[aria-sort]::after{content:" ↓";color:var(--blue)}
+th[aria-sort=ascending]::after{content:" ↑"}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+.who{display:flex;align-items:center;gap:10px;font-weight:500}
+.av{position:relative;width:36px;height:36px;flex:none}
+.av img.p{width:36px;height:36px;border-radius:50%;display:block;border:1px solid var(--line);background:#fff}
+.av img.b{position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;padding:3px;border:1.5px solid var(--bg)}
+.av img.b.ig{background:var(--ig)}
+.av img.b.fb{background:var(--fb)}
+tr.mw td{background:color-mix(in srgb,var(--sky) 18%,transparent)}
+.bar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.bar i{display:block;height:8px;border-radius:4px;background:var(--blue);min-width:2px}
+.bar span{min-width:4.2em;text-align:right}
+.q{font-size:13px;color:var(--muted);white-space:normal;min-width:12em}
+.posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17em),1fr));gap:12px}
+.post{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;background:var(--bg)}
+.post .r{font-weight:800;font-size:24px;color:var(--blue);white-space:nowrap}
+.post .t{font-size:14px;color:var(--muted)}
+.post a{color:var(--ink)}
+details{border-top:1px solid var(--line);padding-top:14px}
+summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+details li{margin-bottom:6px;max-width:80ch}
+.err{padding:24px;color:var(--down)}
+.stage{display:grid;gap:28px;align-items:start}
+@media(min-width:1100px){.stage{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}.rank{position:sticky;top:16px}}
+.rank ol{list-style:none;margin:0;padding:0;max-height:clamp(380px,52vw,620px);overflow-y:auto;border:1px solid var(--line);border-radius:14px}
+.rank li{display:grid;grid-template-columns:2.2em 40px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.rank li:last-child{border-bottom:0}
+.rank li.mw{background:color-mix(in srgb,var(--sky) 22%,transparent)}
+.rank .pos{font-weight:800;font-size:18px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rank li:nth-child(-n+3) .pos{color:var(--blue)}
+.rank .nm{font-weight:500;line-height:1.2}
+.rank .nm small{display:block;font-size:13px;color:var(--muted);font-weight:400}
+.rank .track{height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+.rank .track i{display:block;height:100%;background:var(--blue);border-radius:3px}
+.rank .val{font-weight:800;font-size:18px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.auto{display:inline-flex;align-items:center;gap:10px;font:500 15px Epilogue,sans-serif;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 12px;min-height:44px;cursor:pointer}
+.auto .ring{width:20px;height:20px}
+.auto[aria-pressed=false] .ring circle.p{display:none}
+.seg button{position:relative;overflow:hidden}
+.seg button .prog{position:absolute;left:0;bottom:0;height:3px;background:#fff;opacity:.7;width:0}
+.stagehead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px}
+.setname{font-weight:800;color:var(--blue)}
+@keyframes fade{from{opacity:.25}to{opacity:1}}
+@media(prefers-reduced-motion:no-preference){.swap{animation:fade .6s ease-out}}
+@media(max-width:600px){td,th{padding:8px 6px}table{font-size:14px}.head h1{max-width:none}}
+@media(prefers-reduced-motion:no-preference){.pt{transition:transform .5s cubic-bezier(.2,.7,.2,1)}}
+</style>
+</head>
+<body>
+<header class="head band">
+  <div class="wrap">
+    <h1 id="title">Social Benchmark Radio</h1>
+    <p class="find" id="find">Daten werden geladen …</p>
+    <p class="meta" id="meta"></p>
+    <div class="tiles" id="tiles"></div>
+  </div>
+</header>
+
+<main class="band">
+  <div class="wrap">
+    <div class="ctrl" role="group" aria-label="Filter">
+      <div><span class="lab">Vergleich</span><span class="seg" id="setSeg">
+        <button type="button" data-v="" aria-pressed="true">Alle</button>
+        <button type="button" data-v="Bayern" aria-pressed="false">Bayern</button>
+        <button type="button" data-v="Oberfranken" aria-pressed="false">Oberfranken</button>
+        <button type="button" data-v="Vorbild" aria-pressed="false">Reference</button>
+      </span></div>
+      <button type="button" class="auto" id="auto" aria-pressed="true"><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--line)" stroke-width="3"/><circle class="p" id="ringP" cx="10" cy="10" r="8" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 10 10)"/></svg><span id="autoTxt">Automatisch wechseln</span></button>
+      <div><span class="lab">Netzwerk</span><span class="seg" id="netSeg">
+        <button type="button" data-v="" aria-pressed="true">Beide</button>
+        <button type="button" data-v="Instagram" aria-pressed="false">Instagram</button>
+        <button type="button" data-v="Facebook" aria-pressed="false">Facebook</button>
+      </span></div>
+    </div>
+
+    <div class="stage">
+    <section id="quadrant">
+      <div class="stagehead"><h2>Followerzuwachs und Interaktion</h2><span class="setname" id="setName">Alle Profile</span></div>
+      <p class="sub">Je weiter rechts ein Profil steht, desto höher ist seine Interaktion je Beitrag. Je weiter oben, desto schneller wächst es. Oben rechts stehen die erfolgreichsten Profile, die Linien markieren den Median.</p>
+      <div class="fig" id="fig"><svg id="chart" role="img" aria-label="Quadrant: Interaktion je Beitrag gegen Followerwachstum, je Profil und Netzwerk"></svg></div>
+      <p class="note" id="growthNote"></p>
+    </section>
+    <aside class="rank" id="ranking">
+      <h2>Ranking Interaktion</h2>
+      <p class="sub">Interaktion je Beitrag, bestes Profil oben.</p>
+      <ol id="rank"></ol>
+    </aside>
+    </div>
+
+    <section id="tabelle" style="margin-top:48px">
+      <h2>Alle Kennzahlen</h2>
+      <p class="sub">Spaltenköpfe sortieren die Tabelle. Interaktion je Beitrag: Likes, Kommentare, Reposts und Shares geteilt durch die Follower, gemittelt über alle Beiträge im Messfenster.</p>
+      <div class="scroll"><table id="tbl"><thead><tr>
+        <th data-k="sender">Profil</th>
+        <th data-k="interaktion" class="n" aria-sort="descending">Interaktion je Beitrag</th>
+        <th data-k="median" class="n">Median</th>
+        <th data-k="wachstum" class="n">Wachstum</th>
+        <th data-k="follower" class="n">Follower</th>
+        <th data-k="postsWoche" class="n">Beiträge je Woche</th>
+        <th data-k="reelAnteil" class="n">Reel-Anteil</th>
+        <th data-k="qualitaet">Datenlage</th>
+      </tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section id="beitraege" style="margin-top:48px">
+      <h2>Die stärksten Beiträge im Messfenster</h2>
+      <p class="sub">Gemessen an Interaktionen je Follower, damit kleine und große Sender vergleichbar sind.</p>
+      <div class="posts" id="posts"></div>
+    </section>
+
+    <details id="methode" style="margin-top:48px">
+      <summary>So wird gemessen und gerechnet</summary>
+      <ul>
+        <li>Grundlage sind ausschließlich öffentlich sichtbare Daten, wöchentlich im Browser erhoben.</li>
+        <li>Messfenster: alle Beiträge, die zum Messzeitpunkt 7 bis 14 Tage alt sind. So haben alle Beiträge ihre Interaktionen weitgehend eingesammelt.</li>
+        <li>Interaktion je Beitrag: Summe aus Likes bzw. Reaktionen, Kommentaren, Reposts und Shares, geteilt durch die aktuelle Followerzahl, gemittelt über alle Beiträge. Der Median zeigt den typischen Beitrag; liegt der Mittelwert deutlich darüber, ziehen einzelne Gewinnspiele oder virale Beiträge den Wert hoch.</li>
+        <li>Wachstum: Veränderung der Followerzahl gegenüber vier Wochen zuvor, solange es weniger Historie gibt gegenüber dem ersten Messpunkt.</li>
+        <li>Collab-Beiträge zählen bei beiden beteiligten Profilen. Nicht sichtbare Werte werden nie geschätzt.</li>
+      </ul>
+    </details>
+  </div>
+</main>
+
+<script>
+{
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = (v, d = 2) => (v == null ? '–' : v.toFixed(d).replace('.', ',') + ' %');
+const sgn = (v) => (v == null ? 'noch offen' : (v > 0 ? '+' : '') + pct(v, 1));
+const int = (v) => (v == null ? '–' : Math.round(v).toLocaleString('de-DE'));
+const dt = (s) => new Date(s + 'T12:00:00Z').toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const ICON = { Instagram: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAKNGlDQ1BJQ0MgUHJvZmlsZQAAeJydU2dYVNcW3ffe6YU2wwhIGXqTLjCA1KEXKSJNFIaZAYYyjMMMCHZFVDCiqEixIlERA0YjILEiioWgYK8BCSJKDEYRFUu+ke9LfHl57+Vl/bh3ffvsfc7Za+0DQAsMFYlzUBWAbLFMGhXgw46LT2ATuwEFMhDADoDHz5WEzfKPBgAI8uOyc6MCfOBf8PomIIr/NavACDYb/j+o8iVSGQASAQAOAmEuHwApAoCsfJlEER8FAGZKpoKjOAWXxsUnAKAaCp42yad9zpnkXgouyBYLAFDFnSWCbIGCdwDAmjy5UACAhQJAcZ5ImA+AXQcAoyx5tggAe6OozRbycgFwNEVcJuSnA+BsAYAmjY7iAuBmAJBoaV/wlC+4TLhApmiKmyMpkIrS0mVsM745287FhcMOFOZnCWUyqwgeP5MnFbC5OdkSnrgAYLLnz1BTaMsO8uM62bk4OVnZW9t9IdR/XfybUHg7yV5GfvYMYXX9EfurvJxaAM4YALbhj1hKFUDLKgCNu3/EjHYBKBcBNF/5oh+WYl7SZTKJq41Nfn6+tUjIt1YI+jv+Z8LfwBfnWSu2+10etq8wlSfPkrEVuvFzsnLkUnauhMcXsq3+PMT/uPCv7zEtSpgqlArFfCE7RiTMF4nT2NwcsUAkE+WI2SLxfzLxH5b9CZNzDQCMuo/ATLIGlStMwH7uAhyDCljiDoXrv/sWSo4BxcuL1RuanPvPQP59V7RM8ckVpX2u40ZFs/lyad7kmuJZAh4ooAxM0ARdMAQzsAJ7cAY38AI/CIZwiIZ4mAd8SIdskEI+LILlUAylsAG2QDXshDqoh0Y4DC1wHM7AebgMV+EG3IM+GIRnMAqvYQJBECJCRxiIJqKHGCOWiD3CQTwQPyQUiULikWQkDREjcmQRshIpRcqRamQ3Uo98ixxDziAXkR7kDtKPDCO/Iu9QDKWhTFQHNUFtUA7qjYag0ehcNA2djxaiReh6tBKtRQ+izegZ9DJ6A+1Dn6FjGGBUjIXpY1YYB+Ni4VgClopJsSVYCVaB1WKNWBvWiV3D+rAR7C2OgGPg2DgrnBsuEDcbx8fNxy3BrcNV4/bjmnEduGu4ftwo7iOejtfGW+Jd8UH4OHwaPh9fjK/A78UfxZ/D38AP4l8TCAQWwZTgTAgkxBMyCAsJ6wjbCU2E04QewgBhjEgkahItie7EcCKPKCMWE6uIB4mniL3EQeIbEpWkR7In+ZMSSGLSClIF6QDpJKmXNESaIKuQjcmu5HCygFxALiPXkdvIV8iD5AmKKsWU4k6JpmRQllMqKY2Uc5T7lJdUKtWA6kKNpIqoy6iV1EPUC9R+6luaGs2CxqUl0uS09bR9tNO0O7SXdDrdhO5FT6DL6Ovp9fSz9If0N0oMJWulICWB0lKlGqVmpV6l58pkZWNlb+V5yoXKFcpHlK8oj6iQVUxUuCo8lSUqNSrHVG6pjKkyVO1Uw1WzVdepHlC9qPpEjahmouanJlArUtujdlZtgIExDBlcBp+xklHHOMcYZBKYpswgZgazlPkNs5s5qq6mPl09Rn2Beo36CfU+FsYyYQWxslhlrMOsm6x3U3SmeE8RTlk7pXFK75RxjakaXhpCjRKNJo0bGu802Zp+mpmaGzVbNB9o4bQstCK18rV2aJ3TGpnKnOo2lT+1ZOrhqXe1UW0L7Sjthdp7tLu0x3R0dQJ0JDpVOmd1RnRZul66GbqbdU/qDusx9Dz0RHqb9U7pPWWrs73ZWexKdgd7VF9bP1Bfrr9bv1t/wsDUYLbBCoMmgweGFEOOYarhZsN2w1EjPaMwo0VGDUZ3jcnGHON0463GncbjJqYmsSarTVpMnphqmAaZFpo2mN43o5t5ms03qzW7bk4w55hnmm83v2qBWjhapFvUWFyxRC2dLEWW2y17puGnuUwTT6uddsuKZuVtlWfVYNVvzbIOtV5h3WL93MbIJsFmo02nzUdbR9ss2zrbe3ZqdsF2K+za7H61t7Dn29fYX3egO/g7LHVodXgx3XK6cPqO6bcdGY5hjqsd2x0/ODk7SZ0anYadjZyTnbc53+IwORGcdZwLLngXH5elLsdd3ro6ucpcD7v+4mbllul2wO3JDNMZwhl1MwbcDdx57rvd+zzYHskeuzz6PPU9eZ61no+8DL0EXnu9hrzNvTO8D3o/97H1kfoc9RnnunIXc0/7Yr4BviW+3X5qfrP9qv0e+hv4p/k3+I8GOAYsDDgdiA8MCdwYeCtIJ4gfVB80GuwcvDi4I4QWMiukOuRRqEWoNLQtDA0LDtsUdn+m8UzxzJZwCA8K3xT+IMI0Yn7E95GEyIjImsjHUXZRi6I6ZzFmJc06MOt1tE90WfS92Waz5bPbY5RjEmPqY8ZjfWPLY/vibOIWx12O14oXxbcmEBNiEvYmjM3xm7NlzmCiY2Jx4s25pnMXzL04T2te1rwTScpJvKQjyfjk2OQDye954bxa3lhKUMq2lFE+l7+V/0zgJdgsGBa6C8uFQ6nuqeWpT9Lc0zalDad7plekj4i4omrRi4zAjJ0Z45nhmfsyP2XFZjVlk7KTs4+J1cSZ4o4c3ZwFOT0SS0mxpG++6/wt80elIdK9uUju3NxWGVMmkXXJzeSr5P15Hnk1eW/yY/KPLFBdIF7QVWBRsLZgqNC/8OuFuIX8he2L9BctX9S/2Hvx7iXIkpQl7UsNlxYtHVwWsGz/csryzOU/rLBdUb7i1crYlW1FOkXLigZWBaxqKFYqlhbfWu22euca3BrRmu61Dmur1n4sEZRcKrUtrSh9v46/7tJXdl9VfvVpfer67jKnsh0bCBvEG25u9Ny4v1y1vLB8YFPYpubN7M0lm19tSdpysWJ6xc6tlK3yrX2VoZWtVUZVG6reV6dX36jxqWnapr1t7bbx7YLtvTu8djTu1NlZuvPdLtGu27sDdjfXmtRW7CHsydvzuC6mrvNrztf1e7X2lu79sE+8r29/1P6Oeuf6+gPaB8oa0AZ5w/DBxINXv/H9prXRqnF3E6up9BAckh96+m3ytzcPhxxuP8I50vid8XfbjjKOljQjzQXNoy3pLX2t8a09x4KPtbe5tR393vr7fcf1j9ecUD9RdpJysujkp1OFp8ZOS06PnEk7M9Ce1H7vbNzZ6x2RHd3nQs5dOO9//mynd+epC+4Xjl90vXjsEudSy2Wny81djl1Hf3D84Wi3U3fzFecrrVddrrb1zOg52evZe+aa77Xz14OuX74x80bPzdk3b99KvNV3W3D7yZ2sOy/u5t2duLfsPv5+yQOVBxUPtR/W/mj+Y1OfU9+Jft/+rkezHt0b4A88+yn3p/eDRY/pjyuG9Ibqn9g/OT7sP3z16Zyng88kzyZGin9W/Xnbc7Pn3/3i9UvXaNzo4Avpi0+/rnup+XLfq+mv2scixh6+zn49MV7yRvPN/rect53vYt8NTeS/J76v/GD+oe1jyMf7n7I/ffoN94Tz+5lGCeEAAAINSURBVHjatZaxTlRREIa/uXs3AhqeAIhvYIyllKI2NL6AHYUFgYKGV7BWX4HKAhqWGCubTUggVJRG3oBoFlm4n4VzyfV6syGBneTmnDPnn5k9Z/6Zs6gFgDqrbqsn6k/1Uh3f8rtMm5P0MZs+C3KyoA69PxmqCwChzgHfgKf8lQNgAPwC5HZSAI+AV8CL1B0By+SRVCt1izuKupW+VLdRT9Vr9SABPbVsfH11Ru03nNS6B4lZVr+qb3P/S/o8RR1ltHW1aDkqWr9uXp1vrHtqqB/Sx1H62Mj1qATKxI8iomqwqsj1DPAOeAM8zr3vwGfgU0SM1PeZs920GaXPkqSZ6loal40gS+rhBLYcqksdeVjL/XHZkadI0BywCzxJ/QDYz/nrZMwzYFd9DoyBiIjf7WjtE8zkuDmJXS22bLZsb07QFaCf4zCZMOhgVy91g8QMW7Y3AYr/7idinExZzALay5wUEXEVEVdAkbq9xCyq8xEx7qrAqUrRcbf9iDgHzoAKWI2ICqjqKwKq1K0m5iwizps1NOkEvRx3cn9F3YqI6/qKIuI6E7+SmJ2W7UQW9bMa59TjBuf3s0I3cl7LcWKLriTfW6FlgHJSodlgUpWt4oe63G4VQN0qPkbERaOtFG1fd2p2bUzjetfrZnfXdt1vYesCPGi266k+OPf1ZAbwMBvgy3+ezGk/+kz7b8sfrnZPzCFiH8QAAAAASUVORK5CYII=', Facebook: 'data:image/png;base64,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' };
+const st = { set: '', net: '', sortK: 'interaktion', sortDir: -1 };
+let D = null, AV = {};
+
+const latest = () => { const s = D.kpis.reduce((m, r) => (r.snapshot > m ? r.snapshot : m), ''); return D.kpis.filter((r) => r.snapshot === s); };
+const rows = () => latest().filter((r) => (!st.net || r.netzwerk === st.net) && (!st.set || r.sets.includes(st.set)));
+const avatar = (r) => AV[r.sender] || '';
+
+function header() {
+  const all = latest();
+  const ig = all.filter((r) => r.netzwerk === 'Instagram').sort((a, b) => b.interaktion - a.interaktion);
+  const fb = all.filter((r) => r.netzwerk === 'Facebook').sort((a, b) => b.interaktion - a.interaktion);
+  const mwIg = ig.findIndex((r) => r.sender === 'Radio Mainwelle');
+  const mwFb = fb.findIndex((r) => r.sender === 'Radio Mainwelle');
+  const lead = ig[0];
+  $('#find').innerHTML = lead
+    ? `Auf Instagram liegt <b>${esc(lead.sender)}</b> mit <b>${pct(lead.interaktion)}</b> Interaktion je Beitrag vorn` +
+      (lead.sender === 'Radio Mainwelle' ? '.' : `, Radio Mainwelle folgt auf Platz ${mwIg + 1}.`)
+    : 'Noch keine Daten.';
+  $('#meta').textContent = `Stand ${dt(D.meta.stand)} · Beiträge vom ${dt(D.meta.fenster[0])} bis ${dt(D.meta.fenster[1])}` + (D.meta.hinweis ? ' · ' + D.meta.hinweis : '');
+  const mi = ig[mwIg], mf = fb[mwFb];
+  const posts = all.reduce((n, r) => n + (r.posts || 0), 0);
+  $('#tiles').innerHTML = [
+    [mi ? pct(mi.interaktion) : '–', `Mainwelle Instagram, Platz ${mwIg + 1} von ${ig.length}`],
+    [mf ? pct(mf.interaktion) : '–', `Mainwelle Facebook, Platz ${mwFb + 1} von ${fb.length}`],
+    [String(new Set(all.map((r) => r.sender)).size), 'Sender im Vergleich'],
+    [int(posts), 'Beiträge ausgewertet'],
+  ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+}
+
+function chart() {
+  const svg = $('#chart'), fig = $('#fig');
+  const W = fig.clientWidth, H = fig.clientHeight;
+  const data = rows();
+  const hasG = data.some((r) => r.wachstum != null);
+  const n = data.length; const small = W < 520; const R = Math.max(small ? 9 : 11, Math.min(small ? 13 : 17, Math.round(W / (n * 2.6 + 18))));
+  const m = { l: small ? 46 : 64, r: 28, t: 28, b: 46 };
+  const xs = data.map((r) => r.interaktion);
+  const xMax = Math.max(0.5, ...xs) * 1.12;
+  const gs = data.map((r) => r.wachstum ?? 0);
+  const yLo = Math.min(-1, ...gs) * 1.2, yHi = Math.max(2, ...gs) * 1.2;
+  const X = (v) => m.l + (v / xMax) * (W - m.l - m.r);
+  const Y = (v) => H - m.b - ((v - yLo) / (yHi - yLo)) * (H - m.t - m.b);
+  const med = (a) => { const s = [...a].sort((p, q) => p - q); const n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : 0; };
+  const mx = med(xs), my = hasG ? med(gs) : 0;
+  const step = xMax > 3 ? 1 : xMax > 1.5 ? 0.5 : 0.25;
+  let g = '';
+  for (let v = 0; v <= xMax; v += step) { if (small && Math.round(v / step) % 2) continue; g += `<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--line)"/><text x="${X(v)}" y="${H - m.b + 20}" text-anchor="middle">${pct(v, step < 0.5 ? 2 : 1)}</text>`; }
+  if (hasG) { const ys = 5; for (let i = 0; i <= ys; i++) { const v = yLo + (i * (yHi - yLo)) / ys; g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${pct(v, 1)}</text>`; } }
+  g += `<line x1="${X(mx)}" x2="${X(mx)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--blue)" stroke-dasharray="5 5"/>`;
+  g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(my)}" y2="${Y(my)}" stroke="var(--blue)" stroke-dasharray="5 5"/>`;
+  g += `<text x="${W - m.r}" y="${H - 10}" text-anchor="end">Interaktion je Beitrag →</text>`;
+  g += `<text x="${m.l}" y="18">${hasG ? '↑ Followerwachstum' : 'Followerwachstum folgt ab dem zweiten Messpunkt'}</text>`;
+  if (hasG && !small) { g += `<text class="ql" x="${W - m.r - 8}" y="${m.t + 18}" text-anchor="end">wächst und begeistert</text><text class="ql" x="${m.l + 8}" y="${H - m.b - 10}">Nachholbedarf</text>`; }
+  // Platzierung: ohne Wachstum werden Profile auf der Mittellinie nebeneinander gestapelt, damit sich keine Bilder verdecken
+  const placed = [];
+  const pts = [...data].sort((a, b) => a.interaktion - b.interaktion).map((r) => {
+    const x = X(r.interaktion); let y = Y(r.wachstum ?? 0);
+    if (!hasG) { let k = 0; const base = y; while (placed.some((p) => Math.hypot(p.x - x, p.y - y) < R * 2.2)) { k++; y = base + (k % 2 ? -1 : 1) * Math.ceil(k / 2) * R * 2.2; } }
+    placed.push({ x, y }); return { r, x, y };
+  });
+  const defs = `<defs><clipPath id="cp"><circle r="${R}"/></clipPath></defs>`;
+  const dots = pts.map(({ r, x, y }, i) => {
+    const mw = r.sender === 'Radio Mainwelle';
+    return `<g class="pt" data-i="${i}" tabindex="0" role="button" aria-label="${esc(r.sender + ' ' + r.netzwerk)}" transform="translate(${x},${y})" style="cursor:pointer">
+      <circle r="${R + (mw ? 4 : 2)}" fill="${mw ? 'var(--blue)' : '#fff'}" stroke="var(--line)"/>
+      <image href="${esc(avatar(r))}" x="${-R}" y="${-R}" width="${R * 2}" height="${R * 2}" clip-path="url(#cp)" preserveAspectRatio="xMidYMid slice"/>
+      <circle cx="${R * 0.78}" cy="${R * 0.78}" r="${R * 0.5}" fill="${r.netzwerk === 'Instagram' ? 'var(--ig)' : 'var(--fb)'}" stroke="var(--panel)" stroke-width="1.5"/>
+      <image href="${ICON[r.netzwerk]}" x="${R * 0.78 - R * 0.32}" y="${R * 0.78 - R * 0.32}" width="${R * 0.64}" height="${R * 0.64}"/>
+    </g>`;
+  }).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = defs + g + dots;
+  const tip = fig.querySelector('.tip') || Object.assign(document.createElement('div'), { className: 'tip', hidden: true });
+  fig.appendChild(tip);
+  const show = (el) => {
+    const { r, x, y } = pts[+el.dataset.i];
+    tip.innerHTML = `<b>${esc(r.sender)}</b>${esc(r.netzwerk)}<br>Interaktion je Beitrag: ${pct(r.interaktion)}<br>Median: ${pct(r.median)}<br>Wachstum: ${esc(sgn(r.wachstum))}<br>Follower: ${int(r.follower)} · ${String(r.postsWoche).replace('.', ',')} Beiträge/Woche`;
+    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(x + R + 10, W - tw - 8)) + 'px';
+    tip.style.top = Math.max(8, Math.min(y - th / 2, H - th - 8)) + 'px';
+  };
+  svg.querySelectorAll('.pt').forEach((el) => {
+    el.addEventListener('pointerenter', () => show(el));
+    el.addEventListener('focus', () => show(el));
+    el.addEventListener('click', () => { touch(); show(el); });
+    el.addEventListener('pointerleave', () => { tip.hidden = true; });
+    el.addEventListener('blur', () => { tip.hidden = true; });
+  });
+  $('#growthNote').textContent = hasG ? '' : 'Für das Wachstum braucht es zwei Messpunkte. Bis dahin stehen alle Profile auf der Mittellinie und sind nur nebeneinander versetzt, damit sich die Profilbilder nicht verdecken.';
+}
+
+function table() {
+  const data = rows().sort((a, b) => {
+    const p = a[st.sortK], q = b[st.sortK];
+    if (p == null) return 1; if (q == null) return -1;
+    return (typeof p === 'string' ? p.localeCompare(q) : p - q) * st.sortDir;
+  });
+  const max = Math.max(...data.map((r) => r.interaktion), 0.01);
+  $('#tbl tbody').innerHTML = data.map((r) => `<tr class="${r.sender === 'Radio Mainwelle' ? 'mw' : ''}">
+    <td><div class="who"><span class="av"><img class="p" src="${esc(avatar(r))}" alt=""><img class="b ${r.netzwerk === 'Instagram' ? 'ig' : 'fb'}" src="${ICON[r.netzwerk]}" alt="${esc(r.netzwerk)}"></span>${esc(r.sender)}</div></td>
+    <td class="n"><div class="bar"><i style="width:${(r.interaktion / max) * 90}px"></i><span>${pct(r.interaktion)}</span></div></td>
+    <td class="n">${pct(r.median)}</td>
+    <td class="n">${esc(sgn(r.wachstum))}</td>
+    <td class="n">${int(r.follower)}</td>
+    <td class="n">${String(r.postsWoche ?? '–').replace('.', ',')}</td>
+    <td class="n">${r.reelAnteil == null ? '–' : int(r.reelAnteil) + ' %'}</td>
+    <td class="q">${esc(r.qualitaet)}</td></tr>`).join('');
+  document.querySelectorAll('#tbl th').forEach((th) => { if (th.dataset.k === st.sortK) th.setAttribute('aria-sort', st.sortDir < 0 ? 'descending' : 'ascending'); else th.removeAttribute('aria-sort'); });
+}
+
+function posts() {
+  const keep = new Set(rows().map((r) => r.sender + '|' + r.netzwerk));
+  const fol = Object.fromEntries(latest().map((r) => [r.sender + '|' + r.netzwerk, r.follower]));
+  const top = D.posts.filter((p) => keep.has(p.sender + '|' + p.netzwerk))
+    .map((p) => ({ ...p, rate: (p.interaktionen / fol[p.sender + '|' + p.netzwerk]) * 100 }))
+    .sort((a, b) => b.rate - a.rate).slice(0, 6);
+  $('#posts').innerHTML = top.map((p) => `<div class="post">
+    <span class="av"><img class="p" src="${esc(AV[p.sender] || '')}" alt=""><img class="b ${p.netzwerk === 'Instagram' ? 'ig' : 'fb'}" src="${ICON[p.netzwerk]}" alt="${esc(p.netzwerk)}"></span>
+    <div><div class="r">${pct(p.rate)}</div><div class="t">${esc(p.sender)} · ${esc(p.typ)} vom ${esc(dt(p.datum))}<br>${int(p.interaktionen)} Interaktionen${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">ansehen</a>` : ''}</div></div>
+  </div>`).join('') || '<p class="note">Keine Beiträge in dieser Auswahl.</p>';
+}
+
+function rank() {
+  const data = rows().filter((r) => r.interaktion != null).sort((a, b) => b.interaktion - a.interaktion);
+  const max = Math.max(...data.map((r) => r.interaktion), 0.01);
+  $('#rank').innerHTML = data.map((r, i) => `<li class="${r.sender === 'Radio Mainwelle' ? 'mw' : ''}">
+    <span class="pos">${i + 1}</span>
+    <span class="av"><img class="p" src="${esc(avatar(r))}" alt=""><img class="b ${r.netzwerk === 'Instagram' ? 'ig' : 'fb'}" src="${ICON[r.netzwerk]}" alt="${esc(r.netzwerk)}"></span>
+    <span class="nm">${esc(r.sender)}<small>${esc(r.netzwerk)} · Median ${pct(r.median)}</small><span class="track"><i style="width:${(r.interaktion / max) * 100}%"></i></span></span>
+    <span class="val">${pct(r.interaktion)}</span></li>`).join('') || '<li>Keine Profile in dieser Auswahl.</li>';
+}
+const SETS = [['', 'Alle Profile'], ['Bayern', 'Bayern'], ['Oberfranken', 'Oberfranken'], ['Vorbild', 'Reference']];
+const render = () => {
+  $('#setName').textContent = (SETS.find((x) => x[0] === st.set) || SETS[0])[1];
+  chart(); rank(); table(); posts();
+  ['#fig', '#rank'].forEach((q) => { const el = $(q); el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
+};
+const DWELL = 15000, IDLE = 60000;
+let auto = true, t0 = performance.now(), idleT = null;
+const setSet = (v) => { st.set = v; document.querySelectorAll('#setSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); render(); };
+const setAuto = (on) => { auto = on; t0 = performance.now(); $('#auto').setAttribute('aria-pressed', String(on)); $('#autoTxt').textContent = on ? 'Automatisch wechseln' : 'Pausiert, startet nach 1 Minute neu'; };
+const touch = () => { setAuto(false); clearTimeout(idleT); idleT = setTimeout(() => setAuto(true), IDLE); };
+const tick = (now) => {
+  if (auto && D) {
+    const f = Math.min(1, (now - t0) / DWELL);
+    $('#ringP').setAttribute('stroke-dashoffset', String(50.3 * (1 - f)));
+    if (f >= 1) { const i = SETS.findIndex((x) => x[0] === st.set); setSet(SETS[(i + 1) % SETS.length][0]); t0 = now; }
+  }
+  requestAnimationFrame(tick);
+};
+requestAnimationFrame(tick);
+setInterval(() => fetch('data.json', { cache: 'no-store' }).then((r) => r.json()).then((d) => { D = d; header(); render(); }).catch(() => {}), 30 * 60 * 1000);
+const seg = (id, key) => document.querySelectorAll(`#${id} button`).forEach((b) => b.addEventListener('click', () => {
+  touch(); st[key] = b.dataset.v;
+  document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  render();
+}));
+seg('setSeg', 'set'); seg('netSeg', 'net');
+document.querySelectorAll('#tbl th').forEach((th) => th.addEventListener('click', () => {
+  const k = th.dataset.k; st.sortDir = st.sortK === k ? -st.sortDir : (k === 'sender' || k === 'qualitaet' ? 1 : -1); st.sortK = k; table();
+}));
+$('#auto').addEventListener('click', () => { clearTimeout(idleT); setAuto(!auto); });
+const ro = new ResizeObserver(() => D && chart()); ro.observe($('#fig'));
+
+Promise.all([fetch('data.json', { cache: 'no-store' }).then((r) => r.json()), fetch('avatars.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}))]).then(([d, a]) => { D = d; AV = a; header(); render(); })
+  .catch(() => { $('#find').textContent = 'Die Daten konnten nicht geladen werden.'; $('#fig').innerHTML = '<p class="err">Keine Daten verfügbar.</p>'; });
+}
+</script>
+</body>
+</html>
