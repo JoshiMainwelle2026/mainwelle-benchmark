@@ -5,22 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mainwelle TV · News und Benchmark</title>
 <style>
-/* Geteilte TV-Ansicht: links Regional-News, rechts Social Benchmark (Kompaktmodus). */
+/* TV-Ansicht im Wechsel: erst alle Regional-News einmal durch, dann ein kompletter Benchmark-Durchlauf
+   (Alle, Bayern, Oberfranken, Reference je mit drei Kennzahlen), dann wieder News. */
 html,body{margin:0;height:100%;background:#0c1859;overflow:hidden}
-.split{display:grid;grid-template-columns:40fr 60fr;height:100vh;gap:0}
-iframe{display:block;width:100%;height:100%;border:0}
-.news{border-right:3px solid #218dce}
-@media(max-aspect-ratio:4/3){.split{grid-template-columns:1fr;grid-template-rows:45fr 55fr}.news{border-right:0;border-bottom:3px solid #218dce}}
+iframe{position:fixed;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
+iframe.on{opacity:1;pointer-events:auto}
 </style>
 </head>
 <body>
-<div class="split">
-  <iframe class="news" src="https://joshimainwelle2026.github.io/mainwelle-tv-dashboard/" title="Regional-News"></iframe>
-  <iframe class="bench" src="./?kompakt" title="Social Benchmark"></iframe>
-</div>
+<iframe id="news" title="Regional-News"></iframe>
+<iframe id="bench" title="Social Benchmark"></iframe>
 <script>
-// Beide Ansichten einmal pro Stunde neu laden, falls eine hängen bleibt
-setInterval(() => document.querySelectorAll('iframe').forEach((f) => { f.src = f.src; }), 60 * 60 * 1000);
+{
+const NEWS = 'https://joshimainwelle2026.github.io/mainwelle-tv-dashboard/';
+const ROTATE_MS = 12000;            // Taktung der Schlagzeilen im Newsdesk
+const BENCH_MAX = 12 * 60 * 1000;   // Sicherheitsgrenze, falls kein Durchlauf-Signal kommt
+const news = document.getElementById('news'), bench = document.getElementById('bench');
+let timer = null, phase = '';
+
+const load = (f, src) => new Promise((res) => { f.onload = () => setTimeout(res, 1500); f.src = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now(); });
+const show = (f) => { news.classList.toggle('on', f === news); bench.classList.toggle('on', f === bench); };
+
+async function newsPhase() {
+  phase = 'news'; clearTimeout(timer);
+  let n = 15;
+  try { const d = await fetch(NEWS + 'news.json?t=' + Date.now(), { cache: 'no-store' }).then((r) => r.json()); if (Array.isArray(d.items) && d.items.length) n = d.items.length; } catch (e) {}
+  await load(news, NEWS);
+  show(news);
+  timer = setTimeout(benchPhase, n * ROTATE_MS + 1000);
+}
+async function benchPhase() {
+  phase = 'bench'; clearTimeout(timer);
+  await load(bench, './');
+  show(bench);
+  timer = setTimeout(newsPhase, BENCH_MAX);
+}
+window.addEventListener('message', (e) => { if (e.data === 'bm-cycle-done' && phase === 'bench' && e.source === bench.contentWindow) newsPhase(); });
+newsPhase();
+}
 </script>
 </body>
 </html>
