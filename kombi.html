@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mainwelle TV · News und Benchmark</title>
+<style>
+/* Geteilte TV-Ansicht: links Regional-News, rechts Social Benchmark (Kompaktmodus). */
+html,body{margin:0;height:100%;background:#0c1859;overflow:hidden}
+.split{display:grid;grid-template-columns:40fr 60fr;height:100vh;gap:0}
+iframe{display:block;width:100%;height:100%;border:0}
+.news{border-right:3px solid #218dce}
+@media(max-aspect-ratio:4/3){.split{grid-template-columns:1fr;grid-template-rows:45fr 55fr}.news{border-right:0;border-bottom:3px solid #218dce}}
+</style>
+</head>
+<body>
+<div class="split">
+  <iframe class="news" src="https://joshimainwelle2026.github.io/mainwelle-tv-dashboard/" title="Regional-News"></iframe>
+  <iframe class="bench" src="./?kompakt" title="Social Benchmark"></iframe>
+</div>
+<script>
+// Beide Ansichten einmal pro Stunde neu laden, falls eine hängen bleibt
+setInterval(() => document.querySelectorAll('iframe').forEach((f) => { f.src = f.src; }), 60 * 60 * 1000);
+</script>
+</body>
+</html>

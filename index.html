@@ -102,9 +102,28 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
   .posts{grid-template-columns:repeat(auto-fit,minmax(14em,1fr))}
   .rhead,.rrow{grid-template-columns:1.8em 2.3em minmax(0,1fr) 4em 5.5em}
 }
+
+/* Kompaktmodus (?kompakt) für die geteilte Ansicht kombi.html: nur Ranking, keine Grafik */
+.kompakt{--fs:clamp(13px,1.42vw,21px)}
+.kompakt body{overflow:hidden}
+.kompakt .app{height:100vh}
+.kompakt .head{grid-template-columns:1fr;gap:1vh}
+.kompakt .head h1{font-size:1.9em}
+.kompakt .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kompakt .ctrl{display:none}
+.kompakt .stage{grid-template-columns:1fr}
+.kompakt .stage>.card:first-child{display:none}
+.kompakt .rank{flex:1}
+.kompakt .rlist{overflow:hidden}
+.kompakt .rhead,.kompakt .rrow{grid-template-columns:2em 2.3em minmax(0,1fr) minmax(0,.7fr) 6.5em}
+.kompakt .posts{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kompakt .posts .post:nth-child(n+4){display:none}
+.kompakt .legal{display:none}
+.kompakt .fig{height:auto}
 </style>
 </head>
 <body>
+<script>if(/[?&]kompakt\b/.test(location.search))document.documentElement.classList.add('kompakt');</script>
 <div class="app">
 <header class="head">
   <div>
@@ -286,7 +305,7 @@ function rank() {
   const fs = parseFloat(getComputedStyle(list).fontSize) || 14;
   const rh = fs * 2.6;
   list.style.setProperty('--rh', rh + 'px');
-  const tv = getComputedStyle(document.body).overflow === 'hidden';
+  const tv = getComputedStyle(document.body).overflow === 'hidden' || document.documentElement.classList.contains('kompakt');
   const per = tv ? Math.max(4, Math.floor(list.clientHeight / rh)) : data.length || 1;
   const mwIdx = data.findIndex((r) => r.sender === 'Radio Mainwelle');
   // Plätze je Seite: eine Zeile für Mainwelle freihalten, falls sie nicht auf der Seite steht
