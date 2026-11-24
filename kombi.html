@@ -6,29 +6,50 @@
 <title>Mainwelle TV · News und Benchmark</title>
 <style>
 /* TV-Ansicht im Wechsel: erst alle Regional-News einmal durch, dann ein kompletter Benchmark-Durchlauf
-   (Alle, Bayern, Oberfranken, Reference je mit drei Kennzahlen), dann wieder News. */
+   (Alle, Bayern, Oberfranken, Reference je mit drei Kennzahlen), dann wieder News.
+   Der Timer-Kreis wird in die jeweilige Ansicht eingesetzt: im Newsdesk unter Uhr und Datum,
+   im Benchmark unter Stand und Messfenster. Die Einzelseiten selbst bleiben unverändert. */
 html,body{margin:0;height:100%;background:#0c1859;overflow:hidden}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
 iframe.on{opacity:1;pointer-events:auto}
-.timer{position:fixed;right:22px;bottom:22px;width:34px;height:34px;z-index:5;opacity:.55;pointer-events:none}
-.timer circle{fill:none;stroke-width:3.2}
-.timer .bg{stroke:rgba(255,255,255,.25)}
-.timer .fg{stroke:#89c9eb;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
 </style>
 </head>
 <body>
 <iframe id="news" title="Regional-News"></iframe>
 <iframe id="bench" title="Social Benchmark"></iframe>
-<svg class="timer" viewBox="0 0 36 36" aria-hidden="true"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" id="ring" cx="18" cy="18" r="15" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 18 18)"/></svg>
 <script>
 {
 const NEWS = 'https://joshimainwelle2026.github.io/mainwelle-tv-dashboard/';
 const ROTATE_MS = 12000;            // Taktung der Schlagzeilen im Newsdesk
 const BENCH_MAX = 12 * 60 * 1000;   // Sicherheitsgrenze, falls kein Durchlauf-Signal kommt
+const C = 2 * Math.PI * 15;
 const news = document.getElementById('news'), bench = document.getElementById('bench');
-let timer = null, phase = '', nStart = 0, nDur = 1;
-const ring = document.getElementById('ring');
-const prog = (p) => ring.setAttribute('stroke-dashoffset', String(94.25 * (1 - Math.max(0, Math.min(1, p)))));
+let timer = null, phase = '', nStart = 0, nDur = 1, ring = null;
+
+const CSS = `.kx-next{display:flex;align-items:center;gap:.5em;color:#89c9eb;font:500 1em Epilogue,system-ui,sans-serif;line-height:1.2;opacity:.9}
+.kx-next svg{width:1.35em;height:1.35em;flex:none}
+.kx-next circle{fill:none;stroke-width:3.4}
+.kx-next .bg{stroke:rgba(137,201,235,.25)}
+.kx-next .fg{stroke:#89c9eb;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
+.clock-block .kx-next{justify-content:flex-end;margin-top:.55em;font-size:.95em}
+.head .kx-next{margin-top:.55em;font-size:.9em}`;
+const markup = (label) => `<svg viewBox="0 0 36 36" aria-hidden="true"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 18 18)"/></svg><span>${label}</span>`;
+
+// Timer in die geladene Ansicht einsetzen (gleiche Domain, daher direkt im Dokument möglich)
+function inject(f, anchorSel, label) {
+  try {
+    const d = f.contentDocument; if (!d) return null;
+    if (!d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = CSS; d.head.appendChild(s); }
+    let el = d.getElementById('kx-next');
+    if (!el) {
+      const a = d.querySelector(anchorSel); if (!a) return null;
+      el = d.createElement('div'); el.id = 'kx-next'; el.className = 'kx-next'; el.innerHTML = markup(label);
+      a.insertAdjacentElement('afterend', el);
+    }
+    return el.querySelector('.fg');
+  } catch (e) { return null; }
+}
+const prog = (p) => { if (ring) ring.setAttribute('stroke-dashoffset', String(C * (1 - Math.max(0, Math.min(1, p))))); };
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
 const load = (f, src) => new Promise((res) => { f.onload = () => setTimeout(res, 1500); f.src = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now(); });
@@ -39,6 +60,7 @@ async function newsPhase() {
   let n = 15;
   try { const d = await fetch(NEWS + 'news.json?t=' + Date.now(), { cache: 'no-store' }).then((r) => r.json()); if (Array.isArray(d.items) && d.items.length) n = d.items.length; } catch (e) {}
   await load(news, NEWS);
+  ring = inject(news, '#date', 'Gleich: Social Benchmark');
   phase = 'news';
   show(news); prog(0);
   nStart = Date.now(); nDur = n * ROTATE_MS + 1000;
@@ -47,11 +69,16 @@ async function newsPhase() {
 async function benchPhase() {
   phase = 'loading'; clearTimeout(timer);
   await load(bench, './');
+  ring = inject(bench, '#meta', 'Gleich: Regional-News');
   phase = 'bench';
   show(bench); prog(0);
   timer = setTimeout(newsPhase, BENCH_MAX);
 }
-window.addEventListener('message', (e) => { if (e.data && e.data.type === 'bm-progress' && phase === 'bench' && e.source === bench.contentWindow) prog(e.data.p); if (e.data === 'bm-cycle-done' && phase === 'bench' && e.source === bench.contentWindow) newsPhase(); });
+window.addEventListener('message', (e) => {
+  if (phase !== 'bench' || e.source !== bench.contentWindow) return;
+  if (e.data && e.data.type === 'bm-progress') prog(e.data.p);
+  if (e.data === 'bm-cycle-done') newsPhase();
+});
 newsPhase();
 }
 </script>
