@@ -17,11 +17,11 @@ html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:var(--fs)/1.4 Epilogue,system-ui,sans-serif;overflow:hidden}
 .app{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1.2vh}
 /* Kopfband */
-.head{background:var(--navy);color:#fff;padding:1.6vh 2vw 1.4vh;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:1vh 2.5vw;align-items:end}
-.head h1{font-weight:800;font-size:2.2em;line-height:1;letter-spacing:-.02em;margin:0 0 .35em}
+.head{background:var(--navy);color:#fff;padding:1.6vh 2vw 1.4vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:1.2vh 2.5vw;align-items:end}
+.head h1{font-weight:800;font-size:2.4em;line-height:1;letter-spacing:-.02em;margin:0 0 .3em}
 .find{margin:0;font-size:1.15em;color:#dfe9fb}
 .find b{color:#fff}
-.meta{margin:.4em 0 0;font-size:.85em;color:var(--sky)}
+.meta{margin:0;font-size:1em;color:var(--sky)}
 .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1vw}
 .tile{border-top:2px solid var(--sky);padding-top:.5em}
 .tile .v{font-weight:800;font-size:2em;line-height:1.05;white-space:nowrap}
@@ -50,7 +50,9 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
 .tip b{display:block}
 /* Ranking */
 .rank{flex:1;min-height:0;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
-.rhead,.rrow{display:grid;grid-template-columns:2em 2.3em minmax(0,1fr) 5.6em 5.2em 5.6em;align-items:center;gap:.6em;padding:0 .9em}
+.rhead,.rrow{display:grid;grid-template-columns:2em 2.3em minmax(0,1fr) minmax(0,.8fr) 6.5em;align-items:center;gap:.8em;padding:0 .9em}
+.trk{height:.45em;border-radius:.25em;background:var(--line);overflow:hidden}
+.trk i{display:block;height:100%;background:var(--blue);border-radius:.25em}
 .rhead{font-size:.78em;color:var(--muted);padding-top:.5em;padding-bottom:.45em;border-bottom:1px solid var(--line);line-height:1.15}
 .rhead span:nth-child(n+4),.rrow .n{text-align:right}
 .rhead .on{color:var(--blue);font-weight:700}
@@ -98,8 +100,7 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
   .rank{flex:none}
   .rlist{overflow:visible}
   .posts{grid-template-columns:repeat(auto-fit,minmax(14em,1fr))}
-  .rhead,.rrow{grid-template-columns:1.8em 2.3em minmax(0,1fr) 5em 4.6em}
-  .rhead span:nth-child(6),.rrow .abs{display:none}
+  .rhead,.rrow{grid-template-columns:1.8em 2.3em minmax(0,1fr) 4em 5.5em}
 }
 </style>
 </head>
@@ -108,8 +109,7 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
 <header class="head">
   <div>
     <h1>Social Benchmark Radio</h1>
-    <p class="find" id="find">Daten werden geladen …</p>
-    <p class="meta" id="meta"></p>
+    <p class="meta" id="meta">Daten werden geladen …</p>
   </div>
   <div class="tiles" id="tiles"></div>
   <div class="ctrl" role="group" aria-label="Filter">
@@ -143,7 +143,7 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
     <div class="cardhead"><h2>Ranking</h2><span class="setname" id="rankName"></span></div>
     <p class="sub" id="rankSub"></p>
     <div class="rank">
-      <div class="rhead" id="rhead"><span>#</span><span></span><span>Profil</span><span data-k="interaktion">Interaktion<br>je Beitrag</span><span data-k="rateWoche">Interaktion<br>pro Woche</span><span data-k="absWoche">Interaktionen<br>pro Woche</span></div>
+      <div class="rhead" id="rhead"><span>#</span><span></span><span>Profil</span><span></span><span id="rcol"></span></div>
       <div class="rlist" id="rlist"></div>
       <div class="rfoot"><span id="rnote"></span><span class="dots" id="rdots"></span></div>
     </div>
@@ -153,7 +153,7 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
 <footer class="foot">
   <h2>Die stärksten Beiträge im Messfenster <span class="sub" style="font-weight:400">· gemessen an Interaktionen je Follower</span></h2>
   <div class="posts" id="posts"></div>
-  <p class="legal" id="legal">Öffentlich sichtbare Daten, Beiträge 7 bis 14 Tage nach Veröffentlichung. Interaktion je Beitrag: Likes bzw. Reaktionen, Kommentare, Reposts und Shares geteilt durch Follower, gemittelt. Pro Woche: Summe aller Beiträge einer Woche geteilt durch Follower. Ranking und Grafik zeigen nur Profile mit mindestens 7 Beiträgen pro Woche.</p>
+  <p class="legal" id="legal"><span id="hint"></span> Öffentlich sichtbare Daten, Beiträge 7 bis 14 Tage nach Veröffentlichung. Interaktion je Beitrag: Likes bzw. Reaktionen, Kommentare, Reposts und Shares geteilt durch Follower, gemittelt. Pro Woche: Summe aller Beiträge einer Woche geteilt durch Follower. Ranking und Grafik zeigen nur Profile mit mindestens 7 Beiträgen pro Woche.</p>
 </footer>
 </div>
 
@@ -183,20 +183,19 @@ const avHtml = (sender, net) => `<span class="av"><img class="p" src="${esc(AV[s
 const fmt = (k, v) => (k === 'absWoche' ? int(v) : pct(v, k === 'rateWoche' ? 1 : 2));
 
 function header() {
-  const all = latest().filter(active);
-  const by = (net) => all.filter((r) => r.netzwerk === net).sort((a, b) => b.interaktion - a.interaktion);
+  const k = st.sortK;
+  const all = latest().filter(active).filter((r) => r[k] != null);
+  const by = (net) => all.filter((r) => r.netzwerk === net).sort((a, b) => b[k] - a[k]);
   const ig = by('Instagram'), fb = by('Facebook');
   const mwIg = ig.findIndex((r) => r.sender === 'Radio Mainwelle'), mwFb = fb.findIndex((r) => r.sender === 'Radio Mainwelle');
-  const lead = ig[0];
-  $('#find').innerHTML = lead
-    ? `Auf Instagram liegt <b>${esc(lead.sender)}</b> mit <b>${pct(lead.interaktion)}</b> Interaktion je Beitrag vorn` + (lead.sender === 'Radio Mainwelle' ? '.' : mwIg >= 0 ? `, Radio Mainwelle folgt auf Platz ${mwIg + 1}.` : '.')
-    : 'Noch keine Daten.';
-  $('#meta').textContent = `Stand ${dt(D.meta.stand)} · Beiträge vom ${dt(D.meta.fenster[0])} bis ${dt(D.meta.fenster[1])}` + (D.meta.hinweis ? ' · ' + D.meta.hinweis : '');
-  const mi = ig[mwIg], mf = fb[mwFb];
+  const f = D.meta.fenster;
+  $('#meta').textContent = `Stand ${dts(D.meta.stand)} · Beiträge ${dts(f[0])} bis ${dts(f[1])}`;
+  const mi = ig[mwIg], mf = fb[mwFb], lab = { interaktion: 'je Beitrag', rateWoche: 'pro Woche', absWoche: 'absolut pro Woche' }[k];
+  $('#hint').textContent = D.meta.hinweis ? D.meta.hinweis + ' ·' : '';
   const posts = latest().reduce((n, r) => n + (r.posts || 0), 0);
   $('#tiles').innerHTML = [
-    [mi ? pct(mi.interaktion) : '–', mi ? `Mainwelle Instagram, Platz ${mwIg + 1} von ${ig.length}` : 'Mainwelle Instagram'],
-    [mf ? pct(mf.interaktion) : '–', mf ? `Mainwelle Facebook, Platz ${mwFb + 1} von ${fb.length}` : 'Mainwelle Facebook'],
+    [mi ? fmt(k, mi[k]) : '–', mi ? `Mainwelle Instagram ${lab}, Platz ${mwIg + 1} von ${ig.length}` : 'Mainwelle Instagram'],
+    [mf ? fmt(k, mf[k]) : '–', mf ? `Mainwelle Facebook ${lab}, Platz ${mwFb + 1} von ${fb.length}` : 'Mainwelle Facebook'],
     [String(new Set(latest().map((r) => r.sender)).size), 'Sender im Vergleich'],
     [int(posts), 'Beiträge ausgewertet'],
   ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
@@ -282,6 +281,7 @@ function rank() {
   const sel = rows();
   const data = sel.filter(active).filter((r) => r[st.sortK] != null).sort((a, b) => b[st.sortK] - a[st.sortK]);
   const out = sel.length - data.length;
+  const max = Math.max(...data.map((r) => r[st.sortK]), 1e-9);
   const list = $('#rlist');
   const fs = parseFloat(getComputedStyle(list).fontSize) || 14;
   const rh = fs * 2.6;
@@ -301,11 +301,10 @@ function rank() {
   const row = ({ r, i, pin }) => `<div class="rrow${r.sender === 'Radio Mainwelle' ? ' mw' : ''}${i < 3 ? ' top' : ''}${pin ? ' pin' : ''}">
     <span class="pos">${i + 1}</span>${avHtml(r.sender, r.netzwerk)}
     <span class="nm">${esc(r.sender)}<small>${esc(r.netzwerk)} · ${String(r.postsWoche).replace('.', ',')} Beitr./Woche${r.qualitaet && r.qualitaet !== 'vollständig' ? ' · *' : ''}</small></span>
-    <span class="n${st.sortK === 'interaktion' ? ' main' : ''}">${pct(r.interaktion)}</span>
-    <span class="n${st.sortK === 'rateWoche' ? ' main' : ''}">${pct(r.rateWoche, 1)}</span>
-    <span class="n abs${st.sortK === 'absWoche' ? ' main' : ''}">${int(r.absWoche)}</span></div>`;
+    <span class="trk"><i style="width:${Math.max(1, (r[st.sortK] / max) * 100)}%"></i></span>
+    <span class="n main">${fmt(st.sortK, r[st.sortK])}</span></div>`;
   list.innerHTML = shown.map(row).join('') || '<div class="rrow"><span></span><span></span><span class="nm">Kein Profil mit mindestens einem Beitrag pro Tag</span></div>';
-  document.querySelectorAll('#rhead [data-k]').forEach((s) => s.classList.toggle('on', s.dataset.k === st.sortK));
+  $('#rcol').textContent = MET[st.sortK];
   $('#rankSub').textContent = `Sortiert nach ${MET[st.sortK]}. Nur Profile mit mindestens ${MINW} Beiträgen pro Woche.`;
   $('#rnote').textContent = (out ? `${out} Profil${out === 1 ? '' : 'e'} unter 1 Beitrag pro Tag ausgeblendet` : 'alle Profile posten mindestens täglich') + (data.some((r) => r.qualitaet && r.qualitaet !== 'vollständig') ? ' · * eingeschränkte Datenlage' : '');
   $('#rdots').innerHTML = pages > 1 ? Array.from({ length: pages }, (_, k) => `<i class="${k === st.page ? 'on' : ''}"></i>`).join('') : '';
@@ -327,13 +326,15 @@ const render = (keepPage) => {
   if (!keepPage) st.page = 0;
   const nm = (SETS.find((x) => x[0] === st.set) || SETS[0])[1] + (st.net ? ' · ' + st.net : '');
   $('#setName').textContent = nm; $('#rankName').textContent = nm;
-  chart(); rank(); posts();
+  header(); chart(); rank(); posts();
   ['#fig', '#rlist'].forEach((q) => { const el = $(q); el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
 };
 // Automatik: jede Ranking-Seite 8 s, jedes Set mindestens 15 s
-const PAGE = 8000, MIN_SET = 15000, IDLE = 60000;
+const PAGE = 8000, MIN_SET = 12000, IDLE = 60000;
 let auto = true, t0 = performance.now(), idleT = null;
 const dwell = () => Math.max(MIN_SET, pages * PAGE);
+const METS = ['interaktion', 'rateWoche', 'absWoche'];
+const setSort = (v) => { st.sortK = v; document.querySelectorAll('#sortSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); };
 const setSet = (v) => { st.set = v; document.querySelectorAll('#setSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); render(); };
 const setAuto = (on) => { auto = on; t0 = performance.now(); $('#auto').setAttribute('aria-pressed', String(on)); $('#autoTxt').textContent = on ? 'Automatisch wechseln' : 'Pausiert, startet nach 1 Minute neu'; };
 const touch = () => { setAuto(false); clearTimeout(idleT); idleT = setTimeout(() => setAuto(true), IDLE); };
@@ -342,7 +343,7 @@ const tick = (now) => {
     const total = dwell(), el = now - t0, f = Math.min(1, el / total);
     $('#ringP').setAttribute('stroke-dashoffset', String(50.3 * (1 - f)));
     if (pages > 1) { const pg = Math.min(pages - 1, Math.floor(el / (total / pages))); if (pg !== st.page) { st.page = pg; rank(); const l = $('#rlist'); l.classList.remove('swap'); void l.offsetWidth; l.classList.add('swap'); } }
-    if (f >= 1) { const i = SETS.findIndex((x) => x[0] === st.set); setSet(SETS[(i + 1) % SETS.length][0]); t0 = now; }
+    if (f >= 1) { const j = METS.indexOf(st.sortK); if (j < METS.length - 1) { setSort(METS[j + 1]); render(); } else { setSort(METS[0]); const i = SETS.findIndex((x) => x[0] === st.set); setSet(SETS[(i + 1) % SETS.length][0]); } t0 = now; }
   }
   requestAnimationFrame(tick);
 };
@@ -354,12 +355,11 @@ const seg = (id, key) => document.querySelectorAll(`#${id} button`).forEach((b) 
   render();
 }));
 seg('setSeg', 'set'); seg('netSeg', 'net'); seg('sortSeg', 'sortK');
-document.querySelectorAll('#rhead [data-k]').forEach((s) => { s.style.cursor = 'pointer'; s.addEventListener('click', () => document.querySelector(`#sortSeg button[data-v="${s.dataset.k}"]`).click()); });
 $('#auto').addEventListener('click', () => { clearTimeout(idleT); setAuto(!auto); });
 let rt = null; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => D && render(true), 120); }).observe(document.body);
 
 Promise.all([fetch('data.json', { cache: 'no-store' }).then((r) => r.json()), fetch('avatars.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}))]).then(([d, a]) => { D = d; AV = a; header(); render(); })
-  .catch(() => { $('#find').textContent = 'Die Daten konnten nicht geladen werden.'; $('#fig').innerHTML = '<p class="err">Keine Daten verfügbar.</p>'; });
+  .catch(() => { $('#meta').textContent = 'Die Daten konnten nicht geladen werden.'; $('#fig').innerHTML = '<p class="err">Keine Daten verfügbar.</p>'; });
 }
 </script>
 </body>
