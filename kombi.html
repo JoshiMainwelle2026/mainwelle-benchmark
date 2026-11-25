@@ -13,6 +13,7 @@
 html,body{margin:0;height:100%;background:#0c1859;overflow:hidden}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .9s ease;pointer-events:none}
 iframe.on{opacity:1;pointer-events:auto}
+#bench,#ins{background:#fff} /* weißer Grund, falls ein älterer TV-Browser die Seitenfarben nicht versteht */
 #kbar{position:fixed;top:0;left:0;height:6px;width:0;background:#89c9eb;z-index:10;transition:width .5s linear}
 #kbar.reset{transition:none}
 </style>
@@ -35,7 +36,7 @@ let timer = null, phase = '', nStart = 0, nDur = 1;
 const bar = document.getElementById('kbar');
 // Insights-Board in der Kombi fest im TV-Modus und immer hell (auch wenn das Gerät im Dunkelmodus ist) halten: eigener Balken und „TV-Modus beenden“ ausgeblendet, Esc gesperrt.
 // Die Arbeitsansicht bleibt die normale Board-Seite (ohne #tv).
-function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = ':root{color-scheme:light!important}#tvbar{opacity:0!important}.exit{display:none!important}'; d.head.appendChild(s); f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); } }, true); } } catch (e) {} }
+function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = ':root{color-scheme:light!important;--bg:#ffffff;--ink:#161619;--mute:#5b6275;--line:#e3e7ef;--panel:#f3f7fc;--hi:#0c1859;--pos:#13865f;--neg:#c23b3b}.sec h2{background:#0c1859}#tvbar{opacity:0!important}.exit{display:none!important}'; d.head.appendChild(s); f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); } }, true); } } catch (e) {} }
 const prog = (p) => { p = Math.max(0, Math.min(1, p)); if (p === 0) { bar.classList.add('reset'); bar.style.width = '0'; void bar.offsetWidth; bar.classList.remove('reset'); } else bar.style.width = (p * 100) + '%'; };
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
