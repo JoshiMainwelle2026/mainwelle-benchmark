@@ -33,9 +33,9 @@ const news = document.getElementById('news'), bench = document.getElementById('b
 let timer = null, phase = '', nStart = 0, nDur = 1;
 
 const bar = document.getElementById('kbar');
-// Insights-Board in der Kombi fest im TV-Modus halten: eigener Balken und „TV-Modus beenden“ ausgeblendet, Esc gesperrt.
+// Insights-Board in der Kombi fest im TV-Modus und immer hell (auch wenn das Gerät im Dunkelmodus ist) halten: eigener Balken und „TV-Modus beenden“ ausgeblendet, Esc gesperrt.
 // Die Arbeitsansicht bleibt die normale Board-Seite (ohne #tv).
-function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = '#tvbar{opacity:0!important}.exit{display:none!important}'; d.head.appendChild(s); f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); } }, true); } } catch (e) {} }
+function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = ':root{color-scheme:light!important}#tvbar{opacity:0!important}.exit{display:none!important}'; d.head.appendChild(s); f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); } }, true); } } catch (e) {} }
 const prog = (p) => { p = Math.max(0, Math.min(1, p)); if (p === 0) { bar.classList.add('reset'); bar.style.width = '0'; void bar.offsetWidth; bar.classList.remove('reset'); } else bar.style.width = (p * 100) + '%'; };
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
