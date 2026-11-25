@@ -142,6 +142,7 @@ html:not(.tv) .rlist{overflow-y:auto}
       <button type="button" data-v="Bayern" aria-pressed="false">Bayern</button>
       <button type="button" data-v="Oberfranken" aria-pressed="false">Oberfranken</button>
       <button type="button" data-v="Vorbild" aria-pressed="false">Reference</button>
+      <button type="button" data-v="Markt" aria-pressed="false">Lokale Medien</button>
     </span></div>
     <div><span class="lab">Netzwerk</span><span class="seg" id="netSeg">
       <button type="button" data-v="" aria-pressed="true">Beide</button>
@@ -199,7 +200,10 @@ let D = null, AV = {};
 // abgeleitete Kennzahlen: Summe der Interaktionen = Mittelwert(Rate) × Follower × Beiträge
 const enrich = (r) => ({ ...r, rateWoche: r.interaktion != null && r.postsWoche != null ? r.interaktion * r.postsWoche : null, absWoche: r.interaktion != null && r.postsWoche != null ? (r.interaktion / 100) * r.follower * r.postsWoche : null });
 const latest = () => { const s = D.kpis.reduce((m, r) => (r.snapshot > m ? r.snapshot : m), ''); return D.kpis.filter((r) => r.snapshot === s).map(enrich); };
-const inSel = (r) => (!st.net || r.netzwerk === st.net) && (!st.set || r.sets.includes(st.set));
+// „Lokale Medien“ (Set Markt): Zeitungen, TV und Portale aus der Region – zählen nicht zu „Alle“ und nicht zum Senderfeld
+const mOnly = (r) => r.sets.every((s) => s === 'Markt');
+const inField = (r) => (st.set === 'Markt' ? r.sets.includes('Markt') : !mOnly(r));
+const inSel = (r) => (!st.net || r.netzwerk === st.net) && (!st.set ? !mOnly(r) : r.sets.includes(st.set));
 const active = (r) => (r.postsWoche ?? 0) >= MINW;
 const rows = () => latest().filter(inSel);
 const avatar = (r) => AV[r.sender] || '';
@@ -208,7 +212,7 @@ const fmt = (k, v) => (k === 'absWoche' ? int(v) : pct(v, k === 'rateWoche' ? 1 
 
 function header() {
   const k = st.sortK;
-  const all = latest().filter(active).filter((r) => r[k] != null);
+  const all = latest().filter(inField).filter(active).filter((r) => r[k] != null);
   const by = (net) => all.filter((r) => r.netzwerk === net).sort((a, b) => b[k] - a[k]);
   const ig = by('Instagram'), fb = by('Facebook');
   const mwIg = ig.findIndex((r) => r.sender === 'Radio Mainwelle'), mwFb = fb.findIndex((r) => r.sender === 'Radio Mainwelle');
@@ -216,11 +220,11 @@ function header() {
   $('#meta').textContent = `Stand ${dts(D.meta.stand)} · Beiträge ${dts(f[0])} bis ${dts(f[1])}`;
   const mi = ig[mwIg], mf = fb[mwFb], lab = { interaktion: 'je Beitrag', rateWoche: 'pro Woche', absWoche: 'absolut pro Woche' }[k];
   $('#hint').textContent = D.meta.hinweis ? D.meta.hinweis + ' ·' : '';
-  const posts = latest().reduce((n, r) => n + (r.posts || 0), 0);
+  const posts = latest().filter(inField).reduce((n, r) => n + (r.posts || 0), 0);
   $('#tiles').innerHTML = [
     [mi ? fmt(k, mi[k]) : '–', mi ? `Mainwelle Instagram ${lab}, Platz ${mwIg + 1} von ${ig.length}` : 'Mainwelle Instagram'],
     [mf ? fmt(k, mf[k]) : '–', mf ? `Mainwelle Facebook ${lab}, Platz ${mwFb + 1} von ${fb.length}` : 'Mainwelle Facebook'],
-    [String(new Set(latest().map((r) => r.sender)).size), 'Sender im Vergleich'],
+    [String(new Set(latest().filter(inField).map((r) => r.sender)).size), st.set === 'Markt' ? 'Marken im Vergleich' : 'Sender im Vergleich'],
     [int(posts), 'Beiträge ausgewertet'],
   ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
@@ -345,7 +349,7 @@ function posts() {
   </div>`).join('') || '<p class="sub">Keine Beiträge in dieser Auswahl.</p>';
 }
 
-const SETS = [['', 'Alle Profile'], ['Bayern', 'Bayern'], ['Oberfranken', 'Oberfranken'], ['Vorbild', 'Reference']];
+const SETS = [['', 'Alle Profile'], ['Bayern', 'Bayern'], ['Oberfranken', 'Oberfranken'], ['Vorbild', 'Reference'], ['Markt', 'Lokale Medien']];
 const render = (keepPage) => {
   if (!keepPage) st.page = 0;
   const nm = (SETS.find((x) => x[0] === st.set) || SETS[0])[1] + (st.net ? ' · ' + st.net : '');
