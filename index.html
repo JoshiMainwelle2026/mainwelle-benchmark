@@ -120,6 +120,8 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
 .kompakt .posts .post:nth-child(n+4){display:none}
 .kompakt .legal{display:none}
 .kompakt .fig{height:auto}
+.tv .ctrl>div{display:none}
+html:not(.tv) .rlist{overflow-y:auto}
 </style>
 </head>
 <body>
@@ -148,7 +150,7 @@ h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
       <button type="button" data-v="rateWoche" aria-pressed="false">pro Woche</button>
       <button type="button" data-v="absWoche" aria-pressed="false">absolut</button>
     </span></div>
-    <button type="button" class="auto" id="auto" aria-pressed="true"><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="#2a3a85" stroke-width="3"/><circle class="p" id="ringP" cx="10" cy="10" r="8" fill="none" stroke="var(--sky)" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 10 10)"/></svg><span id="autoTxt">Automatisch wechseln</span></button>
+    <button type="button" class="auto" id="auto" aria-pressed="false"><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="#2a3a85" stroke-width="3"/><circle class="p" id="ringP" cx="10" cy="10" r="8" fill="none" stroke="var(--sky)" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 10 10)"/></svg><span id="autoTxt">TV-Modus starten</span></button>
   </div>
 </header>
 
@@ -305,8 +307,8 @@ function rank() {
   const fs = parseFloat(getComputedStyle(list).fontSize) || 14;
   const rh = fs * 2.6;
   list.style.setProperty('--rh', rh + 'px');
-  const tv = getComputedStyle(document.body).overflow === 'hidden' || document.documentElement.classList.contains('kompakt');
-  const per = tv ? Math.max(4, Math.floor(list.clientHeight / rh)) : data.length || 1;
+  const paged = document.documentElement.classList.contains('tv');
+  const per = paged ? Math.max(4, Math.floor(list.clientHeight / rh)) : data.length || 1;
   const mwIdx = data.findIndex((r) => r.sender === 'Radio Mainwelle');
   // Plätze je Seite: eine Zeile für Mainwelle freihalten, falls sie nicht auf der Seite steht
   const pg = []; let i0 = 0;
@@ -350,16 +352,20 @@ const render = (keepPage) => {
 };
 // Automatik: jede Ranking-Seite 8 s, jedes Set mindestens 15 s
 const PAGE = 8000, MIN_SET = 15000, IDLE = 60000;
-let auto = true, t0 = performance.now(), idleT = null, lastPost = 0;
+// Arbeitsansicht: kein automatischer Wechsel. TV-Modus (#tv, Button oder Kompaktmodus): läuft automatisch durch.
+const TVQ = location.hash === '#tv' || document.documentElement.classList.contains('kompakt');
+let tv = false, auto = false, t0 = performance.now(), idleT = null, lastPost = 0;
 const dwell = () => Math.max(MIN_SET, pages * PAGE);
 const METS = ['interaktion', 'rateWoche', 'absWoche'];
 const setSort = (v) => { st.sortK = v; document.querySelectorAll('#sortSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); };
 const setSet = (v) => { st.set = v; document.querySelectorAll('#setSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); render(); };
-const setAuto = (on) => { auto = on; t0 = performance.now(); $('#auto').setAttribute('aria-pressed', String(on)); $('#autoTxt').textContent = on ? 'Automatisch wechseln' : 'Pausiert, startet nach 1 Minute neu'; };
-const touch = () => { setAuto(false); clearTimeout(idleT); idleT = setTimeout(() => setAuto(true), IDLE); };
+const setAuto = (on) => { auto = on; t0 = performance.now(); $('#auto').setAttribute('aria-pressed', String(tv)); $('#autoTxt').textContent = !tv ? 'TV-Modus starten' : on ? 'TV-Modus · beenden' : 'TV-Modus pausiert, läuft nach 1 Minute weiter'; };
+const touch = () => { if (!tv) return; setAuto(false); clearTimeout(idleT); idleT = setTimeout(() => setAuto(true), IDLE); };
+const tvOn = () => { tv = true; st.net = ''; document.querySelectorAll('#netSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === ''))); document.documentElement.classList.add('tv'); setSort('interaktion'); setSet(''); setAuto(true); if (location.hash !== '#tv') history.replaceState(null, '', location.pathname + location.search + '#tv'); };
+const tvOff = () => { tv = false; clearTimeout(idleT); document.documentElement.classList.remove('tv'); setAuto(false); if (location.hash === '#tv') history.replaceState(null, '', location.pathname + location.search); };
 const tick = (now) => {
   if (auto && D) {
-    const total = dwell(), el = now - t0, f = Math.min(1, el / total);
+    const total = dwell(), el = Math.max(0, now - t0), f = Math.min(1, el / total);
     $('#ringP').setAttribute('stroke-dashoffset', String(50.3 * (1 - f)));
     if (pages > 1) { const pg = Math.min(pages - 1, Math.floor(el / (total / pages))); if (pg !== st.page) { st.page = pg; rank(); const l = $('#rlist'); l.classList.remove('swap'); void l.offsetWidth; l.classList.add('swap'); } }
     if (parent !== window && now - lastPost > 500) { lastPost = now; const si = Math.max(0, SETS.findIndex((x) => x[0] === st.set)), mi = Math.max(0, METS.indexOf(st.sortK)); try { parent.postMessage({ type: 'bm-progress', p: (si * METS.length + mi + f) / (SETS.length * METS.length) }, '*'); } catch (e) {} }
@@ -375,10 +381,11 @@ const seg = (id, key) => document.querySelectorAll(`#${id} button`).forEach((b) 
   render();
 }));
 seg('setSeg', 'set'); seg('netSeg', 'net'); seg('sortSeg', 'sortK');
-$('#auto').addEventListener('click', () => { clearTimeout(idleT); setAuto(!auto); });
+$('#auto').addEventListener('click', () => { if (tv) tvOff(); else tvOn(); });
+document.addEventListener('keydown', (e) => { if (tv && e.key === 'Escape') tvOff(); });
 let rt = null; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => D && render(true), 120); }).observe(document.body);
 
-Promise.all([fetch('data.json', { cache: 'no-store' }).then((r) => r.json()), fetch('avatars.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}))]).then(([d, a]) => { D = d; AV = a; header(); render(); })
+Promise.all([fetch('data.json', { cache: 'no-store' }).then((r) => r.json()), fetch('avatars.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}))]).then(([d, a]) => { D = d; AV = a; header(); render(); if (TVQ) tvOn(); })
   .catch(() => { $('#meta').textContent = 'Die Daten konnten nicht geladen werden.'; $('#fig').innerHTML = '<p class="err">Keine Daten verfügbar.</p>'; });
 }
 </script>

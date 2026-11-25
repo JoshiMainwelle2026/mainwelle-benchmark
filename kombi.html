@@ -6,7 +6,8 @@
 <title>Mainwelle TV · News und Benchmark</title>
 <style>
 /* TV-Ansicht im Wechsel: erst alle Regional-News einmal durch, dann ein kompletter Benchmark-Durchlauf
-   (Alle, Bayern, Oberfranken, Reference je mit drei Kennzahlen), dann wieder News.
+   (Alle, Bayern, Oberfranken, Reference je mit drei Kennzahlen), dann ein kompletter Durchlauf der
+   Social Insights (TV-Modus: alle Abschnitte Instagram, dann Facebook), dann wieder News.
    Der Timer-Kreis wird in die jeweilige Ansicht eingesetzt: im Newsdesk unter Uhr und Datum,
    im Benchmark unter Stand und Messfenster. Die Einzelseiten selbst bleiben unverändert. */
 html,body{margin:0;height:100%;background:#0c1859;overflow:hidden}
@@ -17,13 +18,16 @@ iframe.on{opacity:1;pointer-events:auto}
 <body>
 <iframe id="news" title="Regional-News"></iframe>
 <iframe id="bench" title="Social Benchmark"></iframe>
+<iframe id="ins" title="Social Insights"></iframe>
 <script>
 {
 const NEWS = 'https://joshimainwelle2026.github.io/mainwelle-tv-dashboard/';
 const ROTATE_MS = 12000;            // Taktung der Schlagzeilen im Newsdesk
 const BENCH_MAX = 12 * 60 * 1000;   // Sicherheitsgrenze, falls kein Durchlauf-Signal kommt
 const C = 2 * Math.PI * 15;
-const news = document.getElementById('news'), bench = document.getElementById('bench');
+const INS = 'https://joshimainwelle2026.github.io/board-rf24pnkgob/';
+const INS_SEC_MS = 18000;           // Taktung der Abschnitte im Insights-TV-Modus
+const news = document.getElementById('news'), bench = document.getElementById('bench'), ins = document.getElementById('ins');
 let timer = null, phase = '', nStart = 0, nDur = 1, ring = null;
 
 const CSS = `.kx-next{display:flex;align-items:center;gap:.5em;color:#89c9eb;font:500 1em Epilogue,system-ui,sans-serif;line-height:1.2;opacity:.9}
@@ -32,7 +36,8 @@ const CSS = `.kx-next{display:flex;align-items:center;gap:.5em;color:#89c9eb;fon
 .kx-next .bg{stroke:rgba(137,201,235,.25)}
 .kx-next .fg{stroke:#89c9eb;stroke-linecap:round;transition:stroke-dashoffset .5s linear}
 .clock-block .kx-next{justify-content:flex-end;margin-top:.55em;font-size:.95em}
-.head .kx-next{margin-top:.55em;font-size:.9em}`;
+.head .kx-next{margin-top:.55em;font-size:.9em}
+.tvbadge .kx-next{margin-left:auto;font-size:14px;font-weight:500}`;
 const markup = (label) => `<svg viewBox="0 0 36 36" aria-hidden="true"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 18 18)"/></svg><span>${label}</span>`;
 
 // Timer in die geladene Ansicht einsetzen (gleiche Domain, daher direkt im Dokument möglich)
@@ -53,10 +58,10 @@ const prog = (p) => { if (ring) ring.setAttribute('stroke-dashoffset', String(C 
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
 const load = (f, src) => new Promise((res) => { f.onload = () => setTimeout(res, 1500); f.src = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now(); });
-const show = (f) => { news.classList.toggle('on', f === news); bench.classList.toggle('on', f === bench); };
+const show = (f) => [news, bench, ins].forEach((x) => x.classList.toggle('on', x === f));
 
 async function newsPhase() {
-  phase = 'loading'; clearTimeout(timer);
+  phase = 'loading'; clearTimeout(timer); clearInterval(insT);
   let n = 15;
   try { const d = await fetch(NEWS + 'news.json?t=' + Date.now(), { cache: 'no-store' }).then((r) => r.json()); if (Array.isArray(d.items) && d.items.length) n = d.items.length; } catch (e) {}
   await load(news, NEWS);
@@ -68,8 +73,8 @@ async function newsPhase() {
 }
 async function benchPhase() {
   phase = 'loading'; clearTimeout(timer);
-  await load(bench, './');
-  ring = inject(bench, '#meta', 'Gleich: Regional-News');
+  await load(bench, './#tv');
+  ring = inject(bench, '#meta', 'Gleich: Social Insights');
   phase = 'bench';
   show(bench); prog(0);
   timer = setTimeout(newsPhase, BENCH_MAX);
@@ -77,8 +82,31 @@ async function benchPhase() {
 window.addEventListener('message', (e) => {
   if (phase !== 'bench' || e.source !== bench.contentWindow) return;
   if (e.data && e.data.type === 'bm-progress') prog(e.data.p);
-  if (e.data === 'bm-cycle-done') newsPhase();
+  if (e.data === 'bm-cycle-done') insPhase();
 });
+// Social Insights im TV-Modus: Fortschritt und Ende aus der Abschnittsanzeige unten (z. B. „Facebook · 8 / 8“) ablesen
+let insT = null;
+async function insPhase() {
+  phase = 'loading'; clearTimeout(timer); clearInterval(insT);
+  await load(ins, INS + '#tv');
+  ring = inject(ins, '.tvbadge span', 'Gleich: Regional-News');
+  phase = 'ins';
+  show(ins); prog(0);
+  const d = ins.contentDocument; let nIG = 9, nFB = 8, sawEnd = false;
+  const start = Date.now();
+  insT = setInterval(() => {
+    if (phase !== 'ins') return clearInterval(insT);
+    const m = (d.querySelector('.tvbadge span')?.textContent || '').match(/(Instagram|Facebook)\s*·\s*(\d+)\s*\/\s*(\d+)/);
+    if (!m) return;
+    const isIG = m[1] === 'Instagram', k = +m[2], n = +m[3];
+    if (isIG) nIG = n; else nFB = n;
+    if (!isIG && k === n) sawEnd = true;
+    if (sawEnd && isIG) { clearInterval(insT); newsPhase(); return; }
+    const w = parseFloat(d.getElementById('tvbar')?.style.width) || 0;
+    prog(((isIG ? k - 1 : nIG + k - 1) + w / 100) / (nIG + nFB));
+  }, 500);
+  timer = setTimeout(newsPhase, 18 * INS_SEC_MS + 20000);
+}
 newsPhase();
 }
 </script>
