@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>window.BM_MODE='tv';</script>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Benchmark Radio · TV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* v2: 16:9-Ansicht für den Büro-TV, alles auf einer Seite ohne Scrollen.
+   Vorgängerversion liegt als index-v1.html im Repo. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#080d2b);--ink:light-dark(#161619,#eef2fb);--muted:light-dark(#5a6078,#a8b0cc);--line:light-dark(#e3e7f1,#1f2752);--panel:light-dark(#f4f7fc,#0f1638);--navy:#0c1859;--blue:#218dce;--sky:#89c9eb;--ig:#e1306c;--fb:#1877f2;--up:light-dark(#1a7f4b,#5fd39a);--down:light-dark(#b42318,#ff8a80);--fs:clamp(12px,0.82vw,17px)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:var(--fs)/1.4 Epilogue,system-ui,sans-serif;overflow:hidden}
+.app{height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1.2vh}
+/* Kopfband */
+.head{background:var(--navy);color:#fff;padding:1.6vh 2vw 1.4vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:1.2vh 2.5vw;align-items:end}
+.head h1{font-weight:800;font-size:2.4em;line-height:1;letter-spacing:-.02em;margin:0 0 .3em}
+.find{margin:0;font-size:1.15em;color:#dfe9fb}
+.find b{color:#fff}
+.meta{margin:0;font-size:1em;color:var(--sky)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1vw}
+.tile{border-top:2px solid var(--sky);padding-top:.5em}
+.tile .v{font-weight:800;font-size:2em;line-height:1.05;white-space:nowrap}
+.tile .l{font-size:.85em;color:#c6d6f3;line-height:1.25}
+.ctrl{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.6em 1.6em;align-items:center}
+.seg{display:inline-flex;border:1px solid #2a3a85;border-radius:999px;padding:2px;background:#13206b}
+.seg button{position:relative;overflow:hidden;font:500 .95em Epilogue,sans-serif;color:#dfe9fb;background:none;border:0;border-radius:999px;padding:.4em 1em;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--blue);color:#fff}
+.seg button:focus-visible,.auto:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.lab{font-size:.85em;color:var(--sky);margin-right:.5em}
+.auto{display:inline-flex;align-items:center;gap:.5em;font:500 .95em Epilogue,sans-serif;color:#dfe9fb;background:#13206b;border:1px solid #2a3a85;border-radius:999px;padding:.35em 1em .35em .6em;cursor:pointer}
+.auto .ring{width:1.2em;height:1.2em}
+.auto[aria-pressed=false] .ring circle.p{display:none}
+/* Bühne */
+.stage{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.6vw;padding:0 2vw;min-height:0}
+.card{display:flex;flex-direction:column;min-height:0}
+.cardhead{display:flex;align-items:baseline;justify-content:space-between;gap:1em;margin-bottom:.5vh}
+h2{font-weight:800;font-size:1.35em;line-height:1.1;margin:0}
+.setname{font-weight:800;color:var(--blue);font-size:1.1em;white-space:nowrap}
+.sub{color:var(--muted);margin:0 0 .6vh;font-size:.9em}
+.fig{position:relative;flex:1;min-height:0;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig text{font-family:Epilogue,sans-serif;font-size:.85em;fill:var(--muted);paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+.fig .ql{font-weight:700;fill:var(--blue);opacity:.75}
+.tip{position:absolute;z-index:3;pointer-events:none;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 24px rgba(12,24,89,.18);padding:.6em .8em;font-size:.9em;line-height:1.4;width:max-content;max-width:22em}
+.tip b{display:block}
+/* Ranking */
+.rank{flex:1;min-height:0;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.rhead,.rrow{display:grid;grid-template-columns:2em 2.3em minmax(0,1fr) minmax(0,.8fr) 6.5em;align-items:center;gap:.8em;padding:0 .9em}
+.trk{height:.45em;border-radius:.25em;background:var(--line);overflow:hidden}
+.trk i{display:block;height:100%;background:var(--blue);border-radius:.25em}
+.rhead{font-size:.78em;color:var(--muted);padding-top:.5em;padding-bottom:.45em;border-bottom:1px solid var(--line);line-height:1.15}
+.rhead span:nth-child(n+4),.rrow .n{text-align:right}
+.rhead .on{color:var(--blue);font-weight:700}
+.rlist{flex:1;min-height:0;overflow:hidden}
+.rrow{height:var(--rh,2.6em);border-bottom:1px solid var(--line)}
+.rrow.mw{background:color-mix(in srgb,var(--sky) 24%,transparent)}
+.rrow.pin{border-top:2px solid var(--blue)}
+.pos{font-weight:800;font-size:1.1em;color:var(--muted);font-variant-numeric:tabular-nums}
+.rrow.top .pos{color:var(--blue)}
+.nm{font-weight:500;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm small{display:block;font-size:.8em;color:var(--muted);font-weight:400}
+.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.n.main{font-weight:800;font-size:1.1em}
+.rfoot{display:flex;justify-content:space-between;gap:1em;font-size:.8em;color:var(--muted);padding:.4em .9em;border-top:1px solid var(--line)}
+.dots{display:flex;gap:.35em;align-items:center}
+.dots i{width:.5em;height:.5em;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--blue)}
+/* Avatare */
+.av{position:relative;width:2.1em;height:2.1em;flex:none}
+.av img.p{width:100%;height:100%;border-radius:50%;display:block;border:1px solid var(--line);background:#fff}
+.av img.b{position:absolute;right:-.25em;bottom:-.25em;width:1em;height:1em;border-radius:50%;padding:.18em;border:1.5px solid var(--bg)}
+.av img.b.ig{background:var(--ig)}
+.av img.b.fb{background:var(--fb)}
+/* Beitragsstreifen */
+.foot{padding:0 2vw 1.4vh}
+.foot h2{font-size:1.05em;margin-bottom:.5vh}
+.posts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.8vw}
+.post{border:1px solid var(--line);border-radius:10px;padding:.55em .7em;display:flex;gap:.6em;align-items:center;background:var(--bg)}
+.post .r{font-weight:800;font-size:1.25em;color:var(--blue);white-space:nowrap;line-height:1.1}
+.post .t{font-size:.78em;color:var(--muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.post a{color:inherit;text-decoration:none}
+.legal{margin:.6vh 0 0;font-size:.75em;color:var(--muted)}
+.err{padding:24px;color:var(--down)}
+@keyframes fade{from{opacity:.25}to{opacity:1}}
+@media(prefers-reduced-motion:no-preference){.swap{animation:fade .6s ease-out}.pt{transition:transform .5s cubic-bezier(.2,.7,.2,1)}}
+/* Hochformat und kleine Bildschirme: normal scrollen */
+@media(max-aspect-ratio:4/3),(max-width:900px){
+  :root{--fs:15px}
+  body{overflow:auto}
+  .app{height:auto}
+  .head{grid-template-columns:1fr}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage{grid-template-columns:1fr}
+  .fig{flex:none;height:70vw;min-height:320px}
+  .rank{flex:none}
+  .rlist{overflow:visible}
+  .posts{grid-template-columns:repeat(auto-fit,minmax(14em,1fr))}
+  .rhead,.rrow{grid-template-columns:1.8em 2.3em minmax(0,1fr) 4em 5.5em}
+}
+
+/* Kompaktmodus (?kompakt) für die geteilte Ansicht kombi.html: nur Ranking, keine Grafik */
+.kompakt{--fs:clamp(13px,1.42vw,21px)}
+.kompakt body{overflow:hidden}
+.kompakt .app{height:100vh}
+.kompakt .head{grid-template-columns:1fr;gap:1vh}
+.kompakt .head h1{font-size:1.9em}
+.kompakt .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kompakt .ctrl{display:none}
+.kompakt .stage{grid-template-columns:1fr}
+.kompakt .stage>.card:first-child{display:none}
+.kompakt .rank{flex:1}
+.kompakt .rlist{overflow:hidden}
+.kompakt .rhead,.kompakt .rrow{grid-template-columns:2em 2.3em minmax(0,1fr) minmax(0,.7fr) 6.5em}
+.kompakt .posts{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kompakt .posts .post:nth-child(n+4){display:none}
+.kompakt .legal{display:none}
+.kompakt .fig{height:auto}
+.tv .ctrl>div{display:none}
+html:not(.tv) .rlist{overflow-y:auto}
+/* Arbeitsansicht: kein TV-Button. TV-Ansicht: keine Bedienelemente */
+.work #auto,.tvonly #auto{display:none}
+</style>
+</head>
+<body>
+<script>if(/[?&]kompakt\b/.test(location.search))document.documentElement.classList.add('kompakt');</script>
+<div class="app">
+<header class="head">
+  <div>
+    <h1>Social Benchmark Radio</h1>
+    <p class="meta" id="meta">Daten werden geladen …</p>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="ctrl" role="group" aria-label="Filter">
+    <div><span class="lab">Vergleich</span><span class="seg" id="setSeg">
+      <button type="button" data-v="" aria-pressed="true">Alle</button>
+      <button type="button" data-v="Bayern" aria-pressed="false">Bayern</button>
+      <button type="button" data-v="Oberfranken" aria-pressed="false">Oberfranken</button>
+      <button type="button" data-v="Vorbild" aria-pressed="false">Reference</button>
+    </span></div>
+    <div><span class="lab">Netzwerk</span><span class="seg" id="netSeg">
+      <button type="button" data-v="" aria-pressed="true">Beide</button>
+      <button type="button" data-v="Instagram" aria-pressed="false">Instagram</button>
+      <button type="button" data-v="Facebook" aria-pressed="false">Facebook</button>
+    </span></div>
+    <div><span class="lab">Ranking nach</span><span class="seg" id="sortSeg">
+      <button type="button" data-v="interaktion" aria-pressed="true">je Beitrag</button>
+      <button type="button" data-v="rateWoche" aria-pressed="false">pro Woche</button>
+      <button type="button" data-v="absWoche" aria-pressed="false">absolut</button>
+    </span></div>
+    <button type="button" class="auto" id="auto" aria-pressed="false"><svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="#2a3a85" stroke-width="3"/><circle class="p" id="ringP" cx="10" cy="10" r="8" fill="none" stroke="var(--sky)" stroke-width="3" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 10 10)"/></svg><span id="autoTxt">TV-Modus starten</span></button>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="card">
+    <div class="cardhead"><h2>Followerzuwachs und Interaktion</h2><span class="setname" id="setName">Alle Profile</span></div>
+    <p class="sub" id="figSub">Rechts: mehr Interaktion je Beitrag. Oben: schnelleres Wachstum. Gezeigt werden Profile mit mindestens einem Beitrag pro Tag.</p>
+    <div class="fig" id="fig"><svg id="chart" role="img" aria-label="Interaktion je Beitrag gegen Followerwachstum, je Profil und Netzwerk"></svg></div>
+  </section>
+  <section class="card">
+    <div class="cardhead"><h2>Ranking</h2><span class="setname" id="rankName"></span></div>
+    <p class="sub" id="rankSub"></p>
+    <div class="rank">
+      <div class="rhead" id="rhead"><span>#</span><span></span><span>Profil</span><span></span><span id="rcol"></span></div>
+      <div class="rlist" id="rlist"></div>
+      <div class="rfoot"><span id="rnote"></span><span class="dots" id="rdots"></span></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <h2>Die stärksten Beiträge im Messfenster <span class="sub" style="font-weight:400">· gemessen an Interaktionen je Follower</span></h2>
+  <div class="posts" id="posts"></div>
+  <p class="legal" id="legal"><span id="hint"></span> Öffentlich sichtbare Daten, Beiträge 7 bis 14 Tage nach Veröffentlichung. Interaktion je Beitrag: Likes bzw. Reaktionen, Kommentare, Reposts und Shares geteilt durch Follower, gemittelt. Pro Woche: Summe aller Beiträge einer Woche geteilt durch Follower. Ranking und Grafik zeigen nur Profile mit mindestens 7 Beiträgen pro Woche.</p>
+</footer>
+</div>
+
+<script>
+{
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = (v, d = 2) => (v == null || isNaN(v) ? '–' : v.toFixed(d).replace('.', ',') + ' %');
+const sgn = (v) => (v == null ? 'noch offen' : (v > 0 ? '+' : '') + pct(v, 1));
+const int = (v) => (v == null || isNaN(v) ? '–' : Math.round(v).toLocaleString('de-DE'));
+const dt = (s) => new Date(s + 'T12:00:00Z').toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const dts = (s) => new Date(s + 'T12:00:00Z').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const ICON = { Instagram: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAKNGlDQ1BJQ0MgUHJvZmlsZQAAeJydU2dYVNcW3ffe6YU2wwhIGXqTLjCA1KEXKSJNFIaZAYYyjMMMCHZFVDCiqEixIlERA0YjILEiioWgYK8BCSJKDEYRFUu+ke9LfHl57+Vl/bh3ffvsfc7Za+0DQAsMFYlzUBWAbLFMGhXgw46LT2ATuwEFMhDADoDHz5WEzfKPBgAI8uOyc6MCfOBf8PomIIr/NavACDYb/j+o8iVSGQASAQAOAmEuHwApAoCsfJlEER8FAGZKpoKjOAWXxsUnAKAaCp42yad9zpnkXgouyBYLAFDFnSWCbIGCdwDAmjy5UACAhQJAcZ5ImA+AXQcAoyx5tggAe6OozRbycgFwNEVcJuSnA+BsAYAmjY7iAuBmAJBoaV/wlC+4TLhApmiKmyMpkIrS0mVsM745287FhcMOFOZnCWUyqwgeP5MnFbC5OdkSnrgAYLLnz1BTaMsO8uM62bk4OVnZW9t9IdR/XfybUHg7yV5GfvYMYXX9EfurvJxaAM4YALbhj1hKFUDLKgCNu3/EjHYBKBcBNF/5oh+WYl7SZTKJq41Nfn6+tUjIt1YI+jv+Z8LfwBfnWSu2+10etq8wlSfPkrEVuvFzsnLkUnauhMcXsq3+PMT/uPCv7zEtSpgqlArFfCE7RiTMF4nT2NwcsUAkE+WI2SLxfzLxH5b9CZNzDQCMuo/ATLIGlStMwH7uAhyDCljiDoXrv/sWSo4BxcuL1RuanPvPQP59V7RM8ckVpX2u40ZFs/lyad7kmuJZAh4ooAxM0ARdMAQzsAJ7cAY38AI/CIZwiIZ4mAd8SIdskEI+LILlUAylsAG2QDXshDqoh0Y4DC1wHM7AebgMV+EG3IM+GIRnMAqvYQJBECJCRxiIJqKHGCOWiD3CQTwQPyQUiULikWQkDREjcmQRshIpRcqRamQ3Uo98ixxDziAXkR7kDtKPDCO/Iu9QDKWhTFQHNUFtUA7qjYag0ehcNA2djxaiReh6tBKtRQ+izegZ9DJ6A+1Dn6FjGGBUjIXpY1YYB+Ni4VgClopJsSVYCVaB1WKNWBvWiV3D+rAR7C2OgGPg2DgrnBsuEDcbx8fNxy3BrcNV4/bjmnEduGu4ftwo7iOejtfGW+Jd8UH4OHwaPh9fjK/A78UfxZ/D38AP4l8TCAQWwZTgTAgkxBMyCAsJ6wjbCU2E04QewgBhjEgkahItie7EcCKPKCMWE6uIB4mniL3EQeIbEpWkR7In+ZMSSGLSClIF6QDpJKmXNESaIKuQjcmu5HCygFxALiPXkdvIV8iD5AmKKsWU4k6JpmRQllMqKY2Uc5T7lJdUKtWA6kKNpIqoy6iV1EPUC9R+6luaGs2CxqUl0uS09bR9tNO0O7SXdDrdhO5FT6DL6Ovp9fSz9If0N0oMJWulICWB0lKlGqVmpV6l58pkZWNlb+V5yoXKFcpHlK8oj6iQVUxUuCo8lSUqNSrHVG6pjKkyVO1Uw1WzVdepHlC9qPpEjahmouanJlArUtujdlZtgIExDBlcBp+xklHHOMcYZBKYpswgZgazlPkNs5s5qq6mPl09Rn2Beo36CfU+FsYyYQWxslhlrMOsm6x3U3SmeE8RTlk7pXFK75RxjakaXhpCjRKNJo0bGu802Zp+mpmaGzVbNB9o4bQstCK18rV2aJ3TGpnKnOo2lT+1ZOrhqXe1UW0L7Sjthdp7tLu0x3R0dQJ0JDpVOmd1RnRZul66GbqbdU/qDusx9Dz0RHqb9U7pPWWrs73ZWexKdgd7VF9bP1Bfrr9bv1t/wsDUYLbBCoMmgweGFEOOYarhZsN2w1EjPaMwo0VGDUZ3jcnGHON0463GncbjJqYmsSarTVpMnphqmAaZFpo2mN43o5t5ms03qzW7bk4w55hnmm83v2qBWjhapFvUWFyxRC2dLEWW2y17puGnuUwTT6uddsuKZuVtlWfVYNVvzbIOtV5h3WL93MbIJsFmo02nzUdbR9ss2zrbe3ZqdsF2K+za7H61t7Dn29fYX3egO/g7LHVodXgx3XK6cPqO6bcdGY5hjqsd2x0/ODk7SZ0anYadjZyTnbc53+IwORGcdZwLLngXH5elLsdd3ro6ucpcD7v+4mbllul2wO3JDNMZwhl1MwbcDdx57rvd+zzYHskeuzz6PPU9eZ61no+8DL0EXnu9hrzNvTO8D3o/97H1kfoc9RnnunIXc0/7Yr4BviW+3X5qfrP9qv0e+hv4p/k3+I8GOAYsDDgdiA8MCdwYeCtIJ4gfVB80GuwcvDi4I4QWMiukOuRRqEWoNLQtDA0LDtsUdn+m8UzxzJZwCA8K3xT+IMI0Yn7E95GEyIjImsjHUXZRi6I6ZzFmJc06MOt1tE90WfS92Waz5bPbY5RjEmPqY8ZjfWPLY/vibOIWx12O14oXxbcmEBNiEvYmjM3xm7NlzmCiY2Jx4s25pnMXzL04T2te1rwTScpJvKQjyfjk2OQDye954bxa3lhKUMq2lFE+l7+V/0zgJdgsGBa6C8uFQ6nuqeWpT9Lc0zalDad7plekj4i4omrRi4zAjJ0Z45nhmfsyP2XFZjVlk7KTs4+J1cSZ4o4c3ZwFOT0SS0mxpG++6/wt80elIdK9uUju3NxWGVMmkXXJzeSr5P15Hnk1eW/yY/KPLFBdIF7QVWBRsLZgqNC/8OuFuIX8he2L9BctX9S/2Hvx7iXIkpQl7UsNlxYtHVwWsGz/csryzOU/rLBdUb7i1crYlW1FOkXLigZWBaxqKFYqlhbfWu22euca3BrRmu61Dmur1n4sEZRcKrUtrSh9v46/7tJXdl9VfvVpfer67jKnsh0bCBvEG25u9Ny4v1y1vLB8YFPYpubN7M0lm19tSdpysWJ6xc6tlK3yrX2VoZWtVUZVG6reV6dX36jxqWnapr1t7bbx7YLtvTu8djTu1NlZuvPdLtGu27sDdjfXmtRW7CHsydvzuC6mrvNrztf1e7X2lu79sE+8r29/1P6Oeuf6+gPaB8oa0AZ5w/DBxINXv/H9prXRqnF3E6up9BAckh96+m3ytzcPhxxuP8I50vid8XfbjjKOljQjzQXNoy3pLX2t8a09x4KPtbe5tR393vr7fcf1j9ecUD9RdpJysujkp1OFp8ZOS06PnEk7M9Ce1H7vbNzZ6x2RHd3nQs5dOO9//mynd+epC+4Xjl90vXjsEudSy2Wny81djl1Hf3D84Wi3U3fzFecrrVddrrb1zOg52evZe+aa77Xz14OuX74x80bPzdk3b99KvNV3W3D7yZ2sOy/u5t2duLfsPv5+yQOVBxUPtR/W/mj+Y1OfU9+Jft/+rkezHt0b4A88+yn3p/eDRY/pjyuG9Ibqn9g/OT7sP3z16Zyng88kzyZGin9W/Xnbc7Pn3/3i9UvXaNzo4Avpi0+/rnup+XLfq+mv2scixh6+zn49MV7yRvPN/rect53vYt8NTeS/J76v/GD+oe1jyMf7n7I/ffoN94Tz+5lGCeEAAAINSURBVHjatZaxTlRREIa/uXs3AhqeAIhvYIyllKI2NL6AHYUFgYKGV7BWX4HKAhqWGCubTUggVJRG3oBoFlm4n4VzyfV6syGBneTmnDPnn5k9Z/6Zs6gFgDqrbqsn6k/1Uh3f8rtMm5P0MZs+C3KyoA69PxmqCwChzgHfgKf8lQNgAPwC5HZSAI+AV8CL1B0By+SRVCt1izuKupW+VLdRT9Vr9SABPbVsfH11Ru03nNS6B4lZVr+qb3P/S/o8RR1ltHW1aDkqWr9uXp1vrHtqqB/Sx1H62Mj1qATKxI8iomqwqsj1DPAOeAM8zr3vwGfgU0SM1PeZs920GaXPkqSZ6loal40gS+rhBLYcqksdeVjL/XHZkadI0BywCzxJ/QDYz/nrZMwzYFd9DoyBiIjf7WjtE8zkuDmJXS22bLZsb07QFaCf4zCZMOhgVy91g8QMW7Y3AYr/7idinExZzALay5wUEXEVEVdAkbq9xCyq8xEx7qrAqUrRcbf9iDgHzoAKWI2ICqjqKwKq1K0m5iwizps1NOkEvRx3cn9F3YqI6/qKIuI6E7+SmJ2W7UQW9bMa59TjBuf3s0I3cl7LcWKLriTfW6FlgHJSodlgUpWt4oe63G4VQN0qPkbERaOtFG1fd2p2bUzjetfrZnfXdt1vYesCPGi266k+OPf1ZAbwMBvgy3+ezGk/+kz7b8sfrnZPzCFiH8QAAAAASUVORK5CYII=', Facebook: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAKNGlDQ1BJQ0MgUHJvZmlsZQAAeJydU2dYVNcW3ffe6YU2wwhIGXqTLjCA1KEXKSJNFIaZAYYyjMMMCHZFVDCiqEixIlERA0YjILEiioWgYK8BCSJKDEYRFUu+ke9LfHl57+Vl/bh3ffvsfc7Za+0DQAsMFYlzUBWAbLFMGhXgw46LT2ATuwEFMhDADoDHz5WEzfKPBgAI8uOyc6MCfOBf8PomIIr/NavACDYb/j+o8iVSGQASAQAOAmEuHwApAoCsfJlEER8FAGZKpoKjOAWXxsUnAKAaCp42yad9zpnkXgouyBYLAFDFnSWCbIGCdwDAmjy5UACAhQJAcZ5ImA+AXQcAoyx5tggAe6OozRbycgFwNEVcJuSnA+BsAYAmjY7iAuBmAJBoaV/wlC+4TLhApmiKmyMpkIrS0mVsM745287FhcMOFOZnCWUyqwgeP5MnFbC5OdkSnrgAYLLnz1BTaMsO8uM62bk4OVnZW9t9IdR/XfybUHg7yV5GfvYMYXX9EfurvJxaAM4YALbhj1hKFUDLKgCNu3/EjHYBKBcBNF/5oh+WYl7SZTKJq41Nfn6+tUjIt1YI+jv+Z8LfwBfnWSu2+10etq8wlSfPkrEVuvFzsnLkUnauhMcXsq3+PMT/uPCv7zEtSpgqlArFfCE7RiTMF4nT2NwcsUAkE+WI2SLxfzLxH5b9CZNzDQCMuo/ATLIGlStMwH7uAhyDCljiDoXrv/sWSo4BxcuL1RuanPvPQP59V7RM8ckVpX2u40ZFs/lyad7kmuJZAh4ooAxM0ARdMAQzsAJ7cAY38AI/CIZwiIZ4mAd8SIdskEI+LILlUAylsAG2QDXshDqoh0Y4DC1wHM7AebgMV+EG3IM+GIRnMAqvYQJBECJCRxiIJqKHGCOWiD3CQTwQPyQUiULikWQkDREjcmQRshIpRcqRamQ3Uo98ixxDziAXkR7kDtKPDCO/Iu9QDKWhTFQHNUFtUA7qjYag0ehcNA2djxaiReh6tBKtRQ+izegZ9DJ6A+1Dn6FjGGBUjIXpY1YYB+Ni4VgClopJsSVYCVaB1WKNWBvWiV3D+rAR7C2OgGPg2DgrnBsuEDcbx8fNxy3BrcNV4/bjmnEduGu4ftwo7iOejtfGW+Jd8UH4OHwaPh9fjK/A78UfxZ/D38AP4l8TCAQWwZTgTAgkxBMyCAsJ6wjbCU2E04QewgBhjEgkahItie7EcCKPKCMWE6uIB4mniL3EQeIbEpWkR7In+ZMSSGLSClIF6QDpJKmXNESaIKuQjcmu5HCygFxALiPXkdvIV8iD5AmKKsWU4k6JpmRQllMqKY2Uc5T7lJdUKtWA6kKNpIqoy6iV1EPUC9R+6luaGs2CxqUl0uS09bR9tNO0O7SXdDrdhO5FT6DL6Ovp9fSz9If0N0oMJWulICWB0lKlGqVmpV6l58pkZWNlb+V5yoXKFcpHlK8oj6iQVUxUuCo8lSUqNSrHVG6pjKkyVO1Uw1WzVdepHlC9qPpEjahmouanJlArUtujdlZtgIExDBlcBp+xklHHOMcYZBKYpswgZgazlPkNs5s5qq6mPl09Rn2Beo36CfU+FsYyYQWxslhlrMOsm6x3U3SmeE8RTlk7pXFK75RxjakaXhpCjRKNJo0bGu802Zp+mpmaGzVbNB9o4bQstCK18rV2aJ3TGpnKnOo2lT+1ZOrhqXe1UW0L7Sjthdp7tLu0x3R0dQJ0JDpVOmd1RnRZul66GbqbdU/qDusx9Dz0RHqb9U7pPWWrs73ZWexKdgd7VF9bP1Bfrr9bv1t/wsDUYLbBCoMmgweGFEOOYarhZsN2w1EjPaMwo0VGDUZ3jcnGHON0463GncbjJqYmsSarTVpMnphqmAaZFpo2mN43o5t5ms03qzW7bk4w55hnmm83v2qBWjhapFvUWFyxRC2dLEWW2y17puGnuUwTT6uddsuKZuVtlWfVYNVvzbIOtV5h3WL93MbIJsFmo02nzUdbR9ss2zrbe3ZqdsF2K+za7H61t7Dn29fYX3egO/g7LHVodXgx3XK6cPqO6bcdGY5hjqsd2x0/ODk7SZ0anYadjZyTnbc53+IwORGcdZwLLngXH5elLsdd3ro6ucpcD7v+4mbllul2wO3JDNMZwhl1MwbcDdx57rvd+zzYHskeuzz6PPU9eZ61no+8DL0EXnu9hrzNvTO8D3o/97H1kfoc9RnnunIXc0/7Yr4BviW+3X5qfrP9qv0e+hv4p/k3+I8GOAYsDDgdiA8MCdwYeCtIJ4gfVB80GuwcvDi4I4QWMiukOuRRqEWoNLQtDA0LDtsUdn+m8UzxzJZwCA8K3xT+IMI0Yn7E95GEyIjImsjHUXZRi6I6ZzFmJc06MOt1tE90WfS92Waz5bPbY5RjEmPqY8ZjfWPLY/vibOIWx12O14oXxbcmEBNiEvYmjM3xm7NlzmCiY2Jx4s25pnMXzL04T2te1rwTScpJvKQjyfjk2OQDye954bxa3lhKUMq2lFE+l7+V/0zgJdgsGBa6C8uFQ6nuqeWpT9Lc0zalDad7plekj4i4omrRi4zAjJ0Z45nhmfsyP2XFZjVlk7KTs4+J1cSZ4o4c3ZwFOT0SS0mxpG++6/wt80elIdK9uUju3NxWGVMmkXXJzeSr5P15Hnk1eW/yY/KPLFBdIF7QVWBRsLZgqNC/8OuFuIX8he2L9BctX9S/2Hvx7iXIkpQl7UsNlxYtHVwWsGz/csryzOU/rLBdUb7i1crYlW1FOkXLigZWBaxqKFYqlhbfWu22euca3BrRmu61Dmur1n4sEZRcKrUtrSh9v46/7tJXdl9VfvVpfer67jKnsh0bCBvEG25u9Ny4v1y1vLB8YFPYpubN7M0lm19tSdpysWJ6xc6tlK3yrX2VoZWtVUZVG6reV6dX36jxqWnapr1t7bbx7YLtvTu8djTu1NlZuvPdLtGu27sDdjfXmtRW7CHsydvzuC6mrvNrztf1e7X2lu79sE+8r29/1P6Oeuf6+gPaB8oa0AZ5w/DBxINXv/H9prXRqnF3E6up9BAckh96+m3ytzcPhxxuP8I50vid8XfbjjKOljQjzQXNoy3pLX2t8a09x4KPtbe5tR393vr7fcf1j9ecUD9RdpJysujkp1OFp8ZOS06PnEk7M9Ce1H7vbNzZ6x2RHd3nQs5dOO9//mynd+epC+4Xjl90vXjsEudSy2Wny81djl1Hf3D84Wi3U3fzFecrrVddrrb1zOg52evZe+aa77Xz14OuX74x80bPzdk3b99KvNV3W3D7yZ2sOy/u5t2duLfsPv5+yQOVBxUPtR/W/mj+Y1OfU9+Jft/+rkezHt0b4A88+yn3p/eDRY/pjyuG9Ibqn9g/OT7sP3z16Zyng88kzyZGin9W/Xnbc7Pn3/3i9UvXaNzo4Avpi0+/rnup+XLfq+mv2scixh6+zn49MV7yRvPN/rect53vYt8NTeS/J76v/GD+oe1jyMf7n7I/ffoN94Tz+5lGCeEAAAJlSURBVHjalZW/S5ZRFMe/9/FVIsFSp4KGDHGwQWh2bLQtIaG/wc3BJQhandtcg6ihxSJIF5cisKEh0LUlSl+x8sfzPp+W75Xj7Xm1Djw89557zvf8uOeek1QQMJBS6nk9Lem+pLuSpiRdtdiepC+S3kp6nlL6XOq2EjDg/wSwChxwMR1YdiJitIF3/F8AdgNADfSAxvvGvGPgKPB3gQcRq83zxQB8EpSjsTbqhfXimUgC+HzhcT+QGvgAvALeAJ+Anz4/scz8KTaQgBvAvoXOA38N3G5J7wufH1t235gpC6yGtNCSlgZ4H6KtgMGwfxb0M8ZqBp8Efhuk6WMA4J7lh4Lnl4Fh4GVxb40xJzuSFiRdktSTVJYY5h1K+uiQ8xt5IumhpErSuOVz9fSMuSBg0xb75b4BvgNjwfMRXyznVFUDbFZ+oclfSZX5ZWSDko7UnzLeVEfSaGCW6ckgv73P1Pjs0PyhwomMNZqApgDH+66kWfcdJH1NKTW5iiRdCxG+k3TLhqszWMBekb9cST+AK7qAgFGgW+hm2qskbYewyxQd6GK6LmkkRB6xtjuS1iXdCTnOQsOSngJHvoNHKaVfuf4lPXYp3mwLzP91ATN9GltJ4yEt4xfINsacqVJKW5LW7HldeHJi3reiijCvbtGpjbWWUtrKzW7aFusiknjh8aGNmUeLfG2saSBVkiqPvCXXcl14+6+EdQckLRmzKqfZSnjq9X9EEGfIyl9TzWnKrXe56Cl1Sy8aM68cTst50JzOgj6jcxbYCIrdFgPdcL4BzJ479EsjXs95Wu20lOmOz+badDP9AS+nce+/yW2XAAAAAElFTkSuQmCC' };
+const MINW = 7; // mindestens ein Beitrag pro Tag
+const MET = { interaktion: 'Interaktion je Beitrag', rateWoche: 'Interaktion pro Woche', absWoche: 'Interaktionen pro Woche' };
+const st = { set: '', net: '', sortK: 'interaktion', page: 0 };
+let D = null, AV = {};
+
+// abgeleitete Kennzahlen: Summe der Interaktionen = Mittelwert(Rate) × Follower × Beiträge
+const enrich = (r) => ({ ...r, rateWoche: r.interaktion != null && r.postsWoche != null ? r.interaktion * r.postsWoche : null, absWoche: r.interaktion != null && r.postsWoche != null ? (r.interaktion / 100) * r.follower * r.postsWoche : null });
+const latest = () => { const s = D.kpis.reduce((m, r) => (r.snapshot > m ? r.snapshot : m), ''); return D.kpis.filter((r) => r.snapshot === s).map(enrich); };
+const inSel = (r) => (!st.net || r.netzwerk === st.net) && (!st.set || r.sets.includes(st.set));
+const active = (r) => (r.postsWoche ?? 0) >= MINW;
+const rows = () => latest().filter(inSel);
+const avatar = (r) => AV[r.sender] || '';
+const avHtml = (sender, net) => `<span class="av"><img class="p" src="${esc(AV[sender] || '')}" alt=""><img class="b ${net === 'Instagram' ? 'ig' : 'fb'}" src="${ICON[net]}" alt="${esc(net)}"></span>`;
+const fmt = (k, v) => (k === 'absWoche' ? int(v) : pct(v, k === 'rateWoche' ? 1 : 2));
+
+function header() {
+  const k = st.sortK;
+  const all = latest().filter(active).filter((r) => r[k] != null);
+  const by = (net) => all.filter((r) => r.netzwerk === net).sort((a, b) => b[k] - a[k]);
+  const ig = by('Instagram'), fb = by('Facebook');
+  const mwIg = ig.findIndex((r) => r.sender === 'Radio Mainwelle'), mwFb = fb.findIndex((r) => r.sender === 'Radio Mainwelle');
+  const f = D.meta.fenster;
+  $('#meta').textContent = `Stand ${dts(D.meta.stand)} · Beiträge ${dts(f[0])} bis ${dts(f[1])}`;
+  const mi = ig[mwIg], mf = fb[mwFb], lab = { interaktion: 'je Beitrag', rateWoche: 'pro Woche', absWoche: 'absolut pro Woche' }[k];
+  $('#hint').textContent = D.meta.hinweis ? D.meta.hinweis + ' ·' : '';
+  const posts = latest().reduce((n, r) => n + (r.posts || 0), 0);
+  $('#tiles').innerHTML = [
+    [mi ? fmt(k, mi[k]) : '–', mi ? `Mainwelle Instagram ${lab}, Platz ${mwIg + 1} von ${ig.length}` : 'Mainwelle Instagram'],
+    [mf ? fmt(k, mf[k]) : '–', mf ? `Mainwelle Facebook ${lab}, Platz ${mwFb + 1} von ${fb.length}` : 'Mainwelle Facebook'],
+    [String(new Set(latest().map((r) => r.sender)).size), 'Sender im Vergleich'],
+    [int(posts), 'Beiträge ausgewertet'],
+  ].map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join('');
+}
+
+function chart() {
+  const svg = $('#chart'), fig = $('#fig');
+  const W = fig.clientWidth, H = fig.clientHeight;
+  if (!W || !H) return;
+  const data = rows().filter(active);
+  const hasG = data.some((r) => r.wachstum != null);
+  const n = data.length; const R = Math.max(10, Math.min(20, Math.round(Math.sqrt((W * H) / Math.max(n, 1)) / 4.2)));
+  const fs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 14;
+  const m = { l: fs * 4.2, r: fs * 2, t: fs * 2.2, b: fs * 3 };
+  const xs = data.map((r) => r.interaktion);
+  const xMax = Math.max(0.5, ...xs) * 1.1;
+  const gs = data.map((r) => r.wachstum ?? 0);
+  const yLo = Math.min(-1, ...gs) * 1.2, yHi = Math.max(2, ...gs) * 1.2;
+  const X = (v) => m.l + (v / xMax) * (W - m.l - m.r);
+  const Y = (v) => H - m.b - ((v - yLo) / (yHi - yLo)) * (H - m.t - m.b);
+  const med = (a) => { const s = [...a].sort((p, q) => p - q); const k = s.length; return k ? (k % 2 ? s[(k - 1) / 2] : (s[k / 2 - 1] + s[k / 2]) / 2) : 0; };
+  const mx = med(xs), my = hasG ? med(gs) : 0;
+  const step = [0.25, 0.5, 1, 2, 5, 10, 20].find((s) => xMax / s <= 9) || 50;
+  let g = '';
+  for (let v = 0; v <= xMax + 1e-9; v += step) g += `<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--line)"/><text x="${X(v)}" y="${H - m.b + fs * 1.4}" text-anchor="middle">${pct(v, step < 0.5 ? 2 : step < 1 ? 1 : 0)}</text>`;
+  if (hasG) { for (let i = 0; i <= 5; i++) { const v = yLo + (i * (yHi - yLo)) / 5; g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${pct(v, 1)}</text>`; } }
+  if (n) {
+    g += `<line x1="${X(mx)}" x2="${X(mx)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--blue)" stroke-dasharray="5 5"/>`;
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(my)}" y2="${Y(my)}" stroke="var(--blue)" stroke-dasharray="5 5"/>`;
+  }
+  g += `<text x="${W - m.r}" y="${H - fs * 0.6}" text-anchor="end">Interaktion je Beitrag →</text>`;
+  g += `<text x="${m.l}" y="${fs * 1.3}">${hasG ? '↑ Followerwachstum' : 'Followerwachstum folgt ab dem zweiten Messpunkt'}</text>`;
+  if (hasG) g += `<text class="ql" x="${W - m.r - 8}" y="${m.t + fs * 1.2}" text-anchor="end">wächst und begeistert</text><text class="ql" x="${m.l + 8}" y="${H - m.b - 10}">Nachholbedarf</text>`;
+  if (!n) g += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Kein Profil mit mindestens einem Beitrag pro Tag in dieser Auswahl</text>`;
+  const placed = [];
+  const pts = [...data].sort((a, b) => a.interaktion - b.interaktion).map((r) => {
+    const x = X(r.interaktion); const base = Y(r.wachstum ?? 0); const lo = m.t + R, hi = H - m.b - R;
+    let y = Math.max(lo, Math.min(hi, base)), best = null, bestD = -1;
+    for (let k = 0; k < 120; k++) {
+      const c = base + (k % 2 ? -1 : 1) * Math.ceil(k / 2) * R * 1.1;
+      if (c < lo || c > hi) continue;
+      const d = placed.reduce((mn, p) => Math.min(mn, Math.hypot(p.x - x, p.y - c)), Infinity);
+      if (d >= R * 2.15) { best = c; break; }
+      if (d > bestD) { bestD = d; best = c; }
+    }
+    if (best != null) y = best;
+    placed.push({ x, y }); return { r, x, y };
+  });
+  const defs = `<defs><clipPath id="cp"><circle r="${R}"/></clipPath></defs>`;
+  const dots = pts.map(({ r, x, y }, i) => {
+    const mw = r.sender === 'Radio Mainwelle';
+    return `<g class="pt" data-i="${i}" tabindex="0" role="button" aria-label="${esc(r.sender + ' ' + r.netzwerk)}" transform="translate(${x},${y})" style="cursor:pointer">
+      <circle r="${R + (mw ? 4 : 2)}" fill="${mw ? 'var(--blue)' : '#fff'}" stroke="var(--line)"/>
+      <image href="${esc(avatar(r))}" x="${-R}" y="${-R}" width="${R * 2}" height="${R * 2}" clip-path="url(#cp)" preserveAspectRatio="xMidYMid slice"/>
+      <circle cx="${R * 0.78}" cy="${R * 0.78}" r="${R * 0.5}" fill="${r.netzwerk === 'Instagram' ? 'var(--ig)' : 'var(--fb)'}" stroke="var(--panel)" stroke-width="1.5"/>
+      <image href="${ICON[r.netzwerk]}" x="${R * 0.46}" y="${R * 0.46}" width="${R * 0.64}" height="${R * 0.64}"/>
+    </g>`;
+  }).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = defs + g + dots;
+  const tip = fig.querySelector('.tip') || Object.assign(document.createElement('div'), { className: 'tip', hidden: true });
+  fig.appendChild(tip);
+  const show = (el) => {
+    const { r, x, y } = pts[+el.dataset.i];
+    tip.innerHTML = `<b>${esc(r.sender)}</b>${esc(r.netzwerk)}<br>Interaktion je Beitrag: ${pct(r.interaktion)} (Median ${pct(r.median)})<br>Pro Woche: ${pct(r.rateWoche, 1)} · ${int(r.absWoche)} Interaktionen<br>Wachstum: ${esc(sgn(r.wachstum))}<br>Follower: ${int(r.follower)} · ${String(r.postsWoche).replace('.', ',')} Beiträge/Woche`;
+    tip.hidden = false;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(x + R + 10, W - tw - 8)) + 'px';
+    tip.style.top = Math.max(8, Math.min(y - th / 2, H - th - 8)) + 'px';
+  };
+  svg.querySelectorAll('.pt').forEach((el) => {
+    el.addEventListener('pointerenter', () => show(el));
+    el.addEventListener('focus', () => show(el));
+    el.addEventListener('click', () => { touch(); show(el); });
+    el.addEventListener('pointerleave', () => { tip.hidden = true; });
+    el.addEventListener('blur', () => { tip.hidden = true; });
+  });
+}
+
+// Ranking mit Seiten, Mainwelle bleibt immer sichtbar
+let pages = 1;
+function rank() {
+  const sel = rows();
+  const data = sel.filter(active).filter((r) => r[st.sortK] != null).sort((a, b) => b[st.sortK] - a[st.sortK]);
+  const out = sel.length - data.length;
+  const max = Math.max(...data.map((r) => r[st.sortK]), 1e-9);
+  const list = $('#rlist');
+  const fs = parseFloat(getComputedStyle(list).fontSize) || 14;
+  const rh = fs * 2.6;
+  list.style.setProperty('--rh', rh + 'px');
+  const paged = document.documentElement.classList.contains('tv');
+  const per = paged ? Math.max(4, Math.floor(list.clientHeight / rh)) : data.length || 1;
+  const mwIdx = data.findIndex((r) => r.sender === 'Radio Mainwelle');
+  // Plätze je Seite: eine Zeile für Mainwelle freihalten, falls sie nicht auf der Seite steht
+  const pg = []; let i0 = 0;
+  while (i0 < data.length) { let len = Math.min(per, data.length - i0); if (mwIdx >= 0 && !(mwIdx >= i0 && mwIdx < i0 + len)) len = Math.max(1, len === per ? per - 1 : len); pg.push([i0, len]); i0 += len; }
+  if (!pg.length) pg.push([0, 0]);
+  pages = pg.length;
+  if (st.page >= pages) st.page = 0;
+  const [start, len] = pg[st.page];
+  const shown = data.slice(start, start + len).map((r, j) => ({ r, i: start + j }));
+  if (mwIdx >= 0 && !shown.some((x) => x.i === mwIdx)) shown.push({ r: data[mwIdx], i: mwIdx, pin: true });
+  const row = ({ r, i, pin }) => `<div class="rrow${r.sender === 'Radio Mainwelle' ? ' mw' : ''}${i < 3 ? ' top' : ''}${pin ? ' pin' : ''}">
+    <span class="pos">${i + 1}</span>${avHtml(r.sender, r.netzwerk)}
+    <span class="nm">${esc(r.sender)}<small>${esc(r.netzwerk)} · ${String(r.postsWoche).replace('.', ',')} Beitr./Woche${r.qualitaet && r.qualitaet !== 'vollständig' ? ' · *' : ''}</small></span>
+    <span class="trk"><i style="width:${Math.max(1, (r[st.sortK] / max) * 100)}%"></i></span>
+    <span class="n main">${fmt(st.sortK, r[st.sortK])}</span></div>`;
+  list.innerHTML = shown.map(row).join('') || '<div class="rrow"><span></span><span></span><span class="nm">Kein Profil mit mindestens einem Beitrag pro Tag</span></div>';
+  $('#rcol').textContent = MET[st.sortK];
+  $('#rankSub').textContent = `Sortiert nach ${MET[st.sortK]}. Nur Profile mit mindestens ${MINW} Beiträgen pro Woche.`;
+  $('#rnote').textContent = (out ? `${out} Profil${out === 1 ? '' : 'e'} unter 1 Beitrag pro Tag ausgeblendet` : 'alle Profile posten mindestens täglich') + (data.some((r) => r.qualitaet && r.qualitaet !== 'vollständig') ? ' · * eingeschränkte Datenlage' : '');
+  $('#rdots').innerHTML = pages > 1 ? Array.from({ length: pages }, (_, k) => `<i class="${k === st.page ? 'on' : ''}"></i>`).join('') : '';
+}
+
+function posts() {
+  const keep = new Set(rows().map((r) => r.sender + '|' + r.netzwerk));
+  const fol = Object.fromEntries(latest().map((r) => [r.sender + '|' + r.netzwerk, r.follower]));
+  const top = D.posts.filter((p) => keep.has(p.sender + '|' + p.netzwerk))
+    .map((p) => ({ ...p, rate: (p.interaktionen / fol[p.sender + '|' + p.netzwerk]) * 100 }))
+    .sort((a, b) => b.rate - a.rate).slice(0, 6);
+  $('#posts').innerHTML = top.map((p) => `<div class="post">${avHtml(p.sender, p.netzwerk)}
+    <div><div class="r">${pct(p.rate, p.rate >= 100 ? 0 : 1)}</div><div class="t">${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">` : ''}${esc(p.sender)} · ${esc(p.typ)} vom ${esc(dts(p.datum))} · ${int(p.interaktionen)} Interaktionen${p.url ? '</a>' : ''}</div></div>
+  </div>`).join('') || '<p class="sub">Keine Beiträge in dieser Auswahl.</p>';
+}
+
+const SETS = [['', 'Alle Profile'], ['Bayern', 'Bayern'], ['Oberfranken', 'Oberfranken'], ['Vorbild', 'Reference']];
+const render = (keepPage) => {
+  if (!keepPage) st.page = 0;
+  const nm = (SETS.find((x) => x[0] === st.set) || SETS[0])[1] + (st.net ? ' · ' + st.net : '');
+  $('#setName').textContent = nm; $('#rankName').textContent = nm;
+  header(); chart(); rank(); posts();
+  ['#fig', '#rlist'].forEach((q) => { const el = $(q); el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
+};
+// Automatik: jede Ranking-Seite 8 s, jedes Set mindestens 15 s
+const PAGE = 8000, MIN_SET = 15000, IDLE = 60000;
+// Arbeitsansicht: kein automatischer Wechsel. TV-Modus (#tv, Button oder Kompaktmodus): läuft automatisch durch.
+// Zwei Ansichten aus denselben Daten: index.html = immer Arbeitsansicht, tv.html (window.BM_MODE='tv') = immer TV-Modus, nur Bayern ↔ Oberfranken
+const TVONLY = window.BM_MODE === 'tv';
+const TVQ = TVONLY;
+const ROT = SETS.filter((x) => x[0] === 'Bayern' || x[0] === 'Oberfranken');
+document.documentElement.classList.add(TVONLY ? 'tvonly' : 'work');
+let tv = false, auto = false, t0 = performance.now(), idleT = null, lastPost = 0;
+const dwell = () => Math.max(MIN_SET, pages * PAGE);
+const METS = ['interaktion', 'rateWoche', 'absWoche'];
+const setSort = (v) => { st.sortK = v; document.querySelectorAll('#sortSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); };
+const setSet = (v) => { st.set = v; document.querySelectorAll('#setSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === v))); render(); };
+const setAuto = (on) => { auto = on; t0 = performance.now(); $('#auto').setAttribute('aria-pressed', String(tv)); $('#autoTxt').textContent = !tv ? 'TV-Modus starten' : on ? 'TV-Modus · beenden' : 'TV-Modus pausiert, läuft nach 1 Minute weiter'; };
+const touch = () => { if (!tv || TVONLY) return; setAuto(false); clearTimeout(idleT); idleT = setTimeout(() => setAuto(true), IDLE); };
+const tvOn = () => { tv = true; st.net = ''; document.querySelectorAll('#netSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === ''))); document.documentElement.classList.add('tv'); setSort('interaktion'); setSet(ROT[0][0]); setAuto(true); };
+const tvOff = () => { if (TVONLY) return; tv = false; clearTimeout(idleT); document.documentElement.classList.remove('tv'); setAuto(false); if (location.hash === '#tv') history.replaceState(null, '', location.pathname + location.search); };
+const tick = (now) => {
+  if (auto && D) {
+    const total = dwell(), el = Math.max(0, now - t0), f = Math.min(1, el / total);
+    $('#ringP').setAttribute('stroke-dashoffset', String(50.3 * (1 - f)));
+    if (pages > 1) { const pg = Math.min(pages - 1, Math.floor(el / (total / pages))); if (pg !== st.page) { st.page = pg; rank(); const l = $('#rlist'); l.classList.remove('swap'); void l.offsetWidth; l.classList.add('swap'); } }
+    if (parent !== window && now - lastPost > 500) { lastPost = now; const si = Math.max(0, ROT.findIndex((x) => x[0] === st.set)), mi = Math.max(0, METS.indexOf(st.sortK)); try { parent.postMessage({ type: 'bm-progress', p: (si * METS.length + mi + f) / (ROT.length * METS.length) }, '*'); } catch (e) {} }
+    if (f >= 1) { const j = METS.indexOf(st.sortK); if (j < METS.length - 1) { setSort(METS[j + 1]); render(); } else { setSort(METS[0]); const i = Math.max(0, ROT.findIndex((x) => x[0] === st.set)); if (i === ROT.length - 1) { try { parent.postMessage('bm-cycle-done', '*'); } catch (e) {} } setSet(ROT[(i + 1) % ROT.length][0]); } t0 = now; }
+  }
+  requestAnimationFrame(tick);
+};
+requestAnimationFrame(tick);
+setInterval(() => fetch('data.json', { cache: 'no-store' }).then((r) => r.json()).then((d) => { D = d; header(); render(); }).catch(() => {}), 30 * 60 * 1000);
+const seg = (id, key) => document.querySelectorAll(`#${id} button`).forEach((b) => b.addEventListener('click', () => {
+  touch(); st[key] = b.dataset.v;
+  document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  render();
+}));
+seg('setSeg', 'set'); seg('netSeg', 'net'); seg('sortSeg', 'sortK');
+// Arbeitsansicht ohne TV-Umschalter, TV-Ansicht ohne Rückweg
+document.addEventListener('keydown', (e) => { if (tv && e.key === 'Escape') tvOff(); });
+let rt = null; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => D && render(true), 120); }).observe(document.body);
+
+Promise.all([fetch('data.json', { cache: 'no-store' }).then((r) => r.json()), fetch('avatars.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}))]).then(([d, a]) => { D = d; AV = a; header(); render(); if (TVQ) tvOn(); })
+  .catch(() => { $('#meta').textContent = 'Die Daten konnten nicht geladen werden.'; $('#fig').innerHTML = '<p class="err">Keine Daten verfügbar.</p>'; });
+}
+</script>
+</body>
+</html>

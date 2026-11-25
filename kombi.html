@@ -53,7 +53,7 @@ async function newsPhase() {
 }
 async function benchPhase() {
   phase = 'loading'; clearTimeout(timer);
-  await load(bench, './#tv');
+  await load(bench, './tv.html');
   phase = 'bench';
   show(bench); prog(0);
   timer = setTimeout(newsPhase, BENCH_MAX);
