@@ -39,7 +39,8 @@ function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getEleme
 const prog = (p) => { p = Math.max(0, Math.min(1, p)); if (p === 0) { bar.classList.add('reset'); bar.style.width = '0'; void bar.offsetWidth; bar.classList.remove('reset'); } else bar.style.width = (p * 100) + '%'; };
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
-const load = (f, src) => new Promise((res) => { f.onload = () => setTimeout(res, 1500); f.src = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now(); });
+// Cache-Buster vor einen evtl. #-Anker setzen, sonst wird aus „#tv“ ein „#tv?t=…“ und der TV-Modus startet nicht
+const load = (f, src) => new Promise((res) => { f.onload = () => setTimeout(res, 1500); const [u, h] = src.split('#'); f.src = u + (u.includes('?') ? '&' : '?') + 't=' + Date.now() + (h ? '#' + h : ''); });
 const show = (f) => [news, bench, ins].forEach((x) => x.classList.toggle('on', x === f));
 
 async function newsPhase() {
@@ -76,13 +77,13 @@ async function insPhase() {
   const start = Date.now();
   insT = setInterval(() => {
     if (phase !== 'ins') return clearInterval(insT);
-    if (!d.body.classList.contains('tv')) { clearInterval(insT); insPhase(); return; } // falls doch verlassen: TV-Modus neu starten
+    if (!d.body.classList.contains('tv') && Date.now() - start > 5000) { clearInterval(insT); if (ins.dataset.retry) { delete ins.dataset.retry; newsPhase(); } else { ins.dataset.retry = '1'; insPhase(); } return; } // falls doch verlassen: einmal neu starten, sonst weiter zu den News
     const m = (d.querySelector('.tvbadge span')?.textContent || '').match(/(Instagram|Facebook)\s*·\s*(\d+)\s*\/\s*(\d+)/);
     if (!m) return;
     const isIG = m[1] === 'Instagram', k = +m[2], n = +m[3];
     if (isIG) nIG = n; else nFB = n;
     if (!isIG && k === n) sawEnd = true;
-    if (sawEnd && isIG) { clearInterval(insT); newsPhase(); return; }
+    if (sawEnd && isIG) { clearInterval(insT); delete ins.dataset.retry; newsPhase(); return; }
     const w = parseFloat(d.getElementById('tvbar')?.style.width) || 0;
     prog(((isIG ? k - 1 : nIG + k - 1) + w / 100) / (nIG + nFB));
   }, 500);
