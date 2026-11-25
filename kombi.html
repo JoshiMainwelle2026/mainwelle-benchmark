@@ -33,8 +33,9 @@ const news = document.getElementById('news'), bench = document.getElementById('b
 let timer = null, phase = '', nStart = 0, nDur = 1;
 
 const bar = document.getElementById('kbar');
-// Eigenen Balken des Insights-Boards ausblenden, der Kombi-Balken zeigt den Gesamtfortschritt
-function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = '#tvbar{opacity:0!important}'; d.head.appendChild(s); } } catch (e) {} }
+// Insights-Board in der Kombi fest im TV-Modus halten: eigener Balken und „TV-Modus beenden“ ausgeblendet, Esc gesperrt.
+// Die Arbeitsansicht bleibt die normale Board-Seite (ohne #tv).
+function hideOwnBar(f) { try { const d = f.contentDocument; if (d && !d.getElementById('kx-style')) { const s = d.createElement('style'); s.id = 'kx-style'; s.textContent = '#tvbar{opacity:0!important}.exit{display:none!important}'; d.head.appendChild(s); f.contentWindow.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); } }, true); } } catch (e) {} }
 const prog = (p) => { p = Math.max(0, Math.min(1, p)); if (p === 0) { bar.classList.add('reset'); bar.style.width = '0'; void bar.offsetWidth; bar.classList.remove('reset'); } else bar.style.width = (p * 100) + '%'; };
 setInterval(() => { if (phase === 'news') prog((Date.now() - nStart) / nDur); }, 500);
 
@@ -75,6 +76,7 @@ async function insPhase() {
   const start = Date.now();
   insT = setInterval(() => {
     if (phase !== 'ins') return clearInterval(insT);
+    if (!d.body.classList.contains('tv')) { clearInterval(insT); insPhase(); return; } // falls doch verlassen: TV-Modus neu starten
     const m = (d.querySelector('.tvbadge span')?.textContent || '').match(/(Instagram|Facebook)\s*·\s*(\d+)\s*\/\s*(\d+)/);
     if (!m) return;
     const isIG = m[1] === 'Instagram', k = +m[2], n = +m[3];
