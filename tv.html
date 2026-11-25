@@ -232,7 +232,7 @@ function chart() {
   if (!W || !H) return;
   const data = rows().filter(active);
   const hasG = data.some((r) => r.wachstum != null);
-  const n = data.length; const R = Math.max(10, Math.min(20, Math.round(Math.sqrt((W * H) / Math.max(n, 1)) / 4.2)));
+  const n = data.length; const R = Math.max(7, Math.min(12, Math.round(Math.sqrt((W * H) / Math.max(n, 1)) / 7)));
   const fs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 14;
   const m = { l: fs * 4.2, r: fs * 2, t: fs * 2.2, b: fs * 3 };
   const xs = data.map((r) => r.interaktion);
@@ -269,12 +269,12 @@ function chart() {
     if (best != null) y = best;
     placed.push({ x, y }); return { r, x, y };
   });
-  const defs = `<defs><clipPath id="cp"><circle r="${R}"/></clipPath></defs>`;
+  const defs = `<defs><clipPath id="bmcp" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath></defs>`;
   const dots = pts.map(({ r, x, y }, i) => {
     const mw = r.sender === 'Radio Mainwelle';
     return `<g class="pt" data-i="${i}" tabindex="0" role="button" aria-label="${esc(r.sender + ' ' + r.netzwerk)}" transform="translate(${x},${y})" style="cursor:pointer">
       <circle r="${R + (mw ? 4 : 2)}" fill="${mw ? 'var(--blue)' : '#fff'}" stroke="var(--line)"/>
-      <image href="${esc(avatar(r))}" x="${-R}" y="${-R}" width="${R * 2}" height="${R * 2}" clip-path="url(#cp)" preserveAspectRatio="xMidYMid slice"/>
+      <image href="${esc(avatar(r))}" x="${-R}" y="${-R}" width="${R * 2}" height="${R * 2}" clip-path="url(#bmcp)" preserveAspectRatio="xMidYMid slice"/>
       <circle cx="${R * 0.78}" cy="${R * 0.78}" r="${R * 0.5}" fill="${r.netzwerk === 'Instagram' ? 'var(--ig)' : 'var(--fb)'}" stroke="var(--panel)" stroke-width="1.5"/>
       <image href="${ICON[r.netzwerk]}" x="${R * 0.46}" y="${R * 0.46}" width="${R * 0.64}" height="${R * 0.64}"/>
     </g>`;
